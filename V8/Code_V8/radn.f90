@@ -108,7 +108,7 @@
 !        IF(MOD(LAYER,2).EQ.1) THEN
 !          CORR = SURFACE(CZ(IPQ),JSHAPE)
 !        ELSE
-!          ! Multiply by cos 45°
+!          ! Multiply by cos 45 degree
 !          CORR = 0.5*SQRT(2.0)*SURFACE(CZ(IPQ),JSHAPE)
 !        ENDIF
 !        ! Factors come from assuming volume of each gridpoint is equal
@@ -371,7 +371,7 @@
         IF(MOD(LAYER,2).EQ.1) THEN
           CORR = SURFACE(CZ(IPQ),JSHAPE)
         ELSE
-          ! Multiply by cos 45°
+          ! Multiply by cos 45 degree
           CORR = 0.5*SQRT(2.0)*SURFACE(CZ(IPQ),JSHAPE) 
         ENDIF
         
@@ -1035,19 +1035,20 @@ END SUBROUTINE EXDIFF
 
 !**********************************************************************
       SUBROUTINE TRANSD( &
-        IDAY,IOTUTD,NEWCANOPY,IPROG,NT,XSLOPE,YSLOPE, &
+        IDAY,NEWCANOPY,IPROG,NT,XSLOPE,YSLOPE, &
         NZEN,DIFZEN,NAZ,NUMPNT,DEXTT,DIFSKY, &
         XL,YL,ZL,RX,RY,RZ,DXT,DYT,DZT, &
         XMAX,YMAX,SHADEHT, &
         FOLT,ZBC,JLEAFT,BPTT,NOAGECT,PROPCT,JSHAPET,SHAPET, &
-        NEWTUTD,TU,TD,RELDF,DEXT )! dext now output.
+        NEWTUTD,TU,TD,RELDF,DEXT )
+      
 ! This subroutine calculates the diffuse transmittances, if required.
 !**********************************************************************
 
-
       USE maestcom
+      USE switches
       IMPLICIT NONE
-      INTEGER IRAD,I,NT,NZEN,NEWTUTD,IOTUTD,IDAY
+      INTEGER IRAD,I,NT,NZEN,NEWTUTD,IDAY
       INTEGER J,NUMPNT,NEWCANOPY, FLOAT,K
       INTEGER JSHAPET(MAXT),JLEAFT(MAXT),NOAGECT(MAXT)
       INTEGER NAZ,IPT,IPROG,IFLAG
@@ -1135,7 +1136,7 @@ END SUBROUTINE EXDIFF
             CALL TREDST(IFLAG,IPROG,IRAD,DZUP,DAZ, &
                XL(IPT),YL(IPT),ZL(IPT),RX,RY,RZ,DXT,DYT,DZT, &
                FOLT,ZBC,JLEAFT,BPTT,NOAGECT,PROPCT,JSHAPET,SHAPET, &
-               DEXTT(1:MAXT,J),NT,SU,SU1,DEXT(J),DEXTANGT,DEXTANG)!! DEXT is output!! DEXTANG=0 not used
+               DEXTT(1:MAXT,J),NT,SU,SU1,DEXT(J),DEXTANGT,DEXTANG)
 
             ADDUP = ADDUP + EXP(-DEXT(J)*(SU+SU1))
 
@@ -1144,7 +1145,7 @@ END SUBROUTINE EXDIFF
             CALL TREDST(IFLAG,IPROG,IRAD,DZDN,DAZ, &
                XL(IPT),YL(IPT),ZL(IPT),RX,RY,RZ,DXT,DYT,DZT, &
                FOLT,ZBC,JLEAFT,BPTT,NOAGECT,PROPCT,JSHAPET,SHAPET, &
-               DEXTT(1:MAXT,J),NT,SL,SL1,DEXT(J),DEXTANGT,DEXTANG)  !! DEXT is output!!  !modification mathias mars 2013
+               DEXTT(1:MAXT,J),NT,SL,SL1,DEXT(J),DEXTANGT,DEXTANG) 
 
             ADDDN = ADDDN + EXP(-DEXT(J)*(SL+SL1))
 
@@ -1154,9 +1155,10 @@ END SUBROUTINE EXDIFF
           TMPVAR=(1.0+DIFSKY*COSUP)/(1.0+DIFSKY)
           PTHUP = ADDUP*SINUP*TMPVAR/FLOAT(NAZ)
           WNS = WNS + COSUP*PTHUP
-!              WNS1 = WNS1 + DEXT(J)*PTHUP
-              WNS1 = WNS1 + DEXTT(1,J)*PTHUP   ! guerric 04/14
-              WDS = WDS + SINUP*COSUP*TMPVAR
+          
+          ! Part of pathlength inside target tree, should use target tree extinction coefficient.
+          WNS1 = WNS1 + DEXTT(1,J)*PTHUP
+          WDS = WDS + SINUP*COSUP*TMPVAR
           WNG = WNG + ADDDN*SINDN*COSDN/FLOAT(NAZ)
           WDG = WDG + SINDN*COSDN
 
@@ -1197,12 +1199,17 @@ END SUBROUTINE EXDIFF
       REAL TANAZ,SINAZ,S,S1,SW,S1W,DAZ
       REAL SWANG(MAXANG),S1WANG(MAXANG),SSWANG(MAXANG)
       REAL PATH, XTPOS, YTPOS, XPT,YPT,DZ,ZPT,X1,Y1,Z1
-      REAL X2,Y2,Z2,AVGDL,SS,SSW,EFFK
+      REAL X2,Y2,Z2,AVGDL,SS,SSW,EFFK,OLDEFFK
       REAL EXTCANG(MAXT,MAXANG),EFFKANG(MAXANG)
       LOGICAL, EXTERNAL :: POSSIBLE
 
       TANAZ = TAN(DAZ)
       SINAZ = SIN(DAZ)
+
+      
+! Remember old value of 'EFFK' (effective extinction coefficient). This is the average across trees,
+! when TREDST is called from TRANSD (as it exclusively is). 
+      OLDEFFK = EFFK
 
 ! Zero the pathlengths.
 ! S1 is distance in target tree, S is distance in other trees.
@@ -1263,8 +1270,8 @@ END SUBROUTINE EXDIFF
            S1 = S1 + SS
            S1W = S1W + SSW
            S1WANG = S1WANG + SSWANG(1:MAXANG)
-        END IF
-
+        END IF        
+        
 200   CONTINUE
 
 ! Calculate weighted effective extinction coefficient.
@@ -1272,7 +1279,7 @@ END SUBROUTINE EXDIFF
         EFFK = (S1W + SW) / (S + S1)
         EFFKANG = (S1WANG + SWANG) / (S + S1)
       ELSE
-        EFFK = 0.0
+        EFFK = OLDEFFK
         EFFKANG = 0.0
       ENDIF
 
@@ -1310,7 +1317,7 @@ END SUBROUTINE EXDIFF
         IF ((RCH.LT.1.01) .AND. (RCH.GT.1.0)) RCH = 1.00 ! numerical tid
         TRD = SURFACE(RCH,JSHAPE)*SQRT(RXQ*RYQ)                  ! TRD i
         IF (TRD.EQ.0.0) THEN 
-            TRD=0.0001 ! glm 17 décembre 2012
+            TRD=0.0001 ! glm 17 december 2012
         ENDIF
         
 ! Find beta in vertical direction
@@ -1836,7 +1843,7 @@ END SUBROUTINE EXDIFF
 
 !**********************************************************************
       SUBROUTINE EHC(NUMPNT,TU,TD, &
-        TOTLAI,XSLOPE,YSLOPE,NAZ,NZEN,DIFZEN,DEXT, &
+        TOTLAI,XSLOPE,YSLOPE,NAZ,NZEN,NECHLAY,DIFZEN,DEXT, &
         DLAI,EXPDIF,LAYER,MLAYER &
         )
 ! This subroutine sets up the equivalent horizontal canopy.
@@ -1844,17 +1851,17 @@ END SUBROUTINE EXDIFF
 
       USE maestcom
       IMPLICIT NONE
-      INTEGER LAYER(MAXP),MLAYER(MAXP)
+      INTEGER LAYER(MAXP),MLAYER(MAXP),NECHLAY
       INTEGER NUMPNT,NAZ,NZEN,NLAY
       
       REAL TU(MAXP),TD(MAXP)
       REAL DIFZEN(MAXANG),DEXT(MAXANG)
-      REAL RTA(50),TAUMIN,XSLOPE,YSLOPE,TOTLAI,DLAI
+      REAL RTA(MAXECHLAYER),TAUMIN,XSLOPE,YSLOPE,TOTLAI,DLAI
       REAL EXPDIF
 
       CALL TDUMIN(TU,TD,NUMPNT,TAUMIN)
 
-      CALL CHART(XSLOPE,YSLOPE,NAZ,NZEN,DIFZEN,DEXT, &
+      CALL CHART(XSLOPE,YSLOPE,NAZ,NZEN,NECHLAY,DIFZEN,DEXT, &
         TOTLAI,TAUMIN, &
         RTA,NLAY,DLAI,EXPDIF)
 
@@ -1890,7 +1897,7 @@ END SUBROUTINE EXDIFF
 
 !**********************************************************************
       SUBROUTINE CHART(XSLOPE,YSLOPE,NAZ, &
-        NZEN,DIFZEN,DEXT,TOTLAI,TAUMIN, &
+        NZEN,NECHLAY,DIFZEN,DEXT,TOTLAI,TAUMIN, &
         RTA,NLAY,DLAI,EXPDIF)
 ! This subroutine calculates the number of elemenraty layers in the EHC
 ! and the transmittance of diffuse radiation through the EHC.
@@ -1903,18 +1910,33 @@ END SUBROUTINE EXDIFF
 
       USE maestcom
       IMPLICIT NONE
-      INTEGER NAZ,NZEN,NLAY,KK,I,J
+      INTEGER NAZ,NZEN,NLAY,KK,I,J,NECHLAY
       REAL DIFZEN(MAXANG),DEXT(MAXANG)
-      REAL RTA(50)
+      REAL RTA(MAXECHLAYER)
       REAL XSLOPE,YSLOPE,TOTLAI,TAUMIN
       REAL DLAI,EXPDIF,WN,WD,DA,CZ,SZ,DAZ
       REAL SLOPE
+      REAL DLAIOLD
 
 ! Initial thickness of canopy layer
 ! Norman (1979) says this should be always < 0.5 and preferably closer to 0.1.
 ! Here for LAI < 5, we try DLAI = 0.1
       !DLAI = REAL(IFIX(TOTLAI/5.0)+1)*0.1 !! modification Mathias 12/2012
-      DLAI=0.01 ! G Le Maire
+      !! DLAI = 0.01 ! G Le Maire
+      !
+      !! For very spare canopies, DLAI could be > TOTLAI
+      !IF(DLAI.GT.(TOTLAI/5.0))THEN
+      !
+      !    DLAI = TOTLAI / NECHLAY
+      !    
+      !ENDIF   
+      
+      DLAI = TOTLAI / NECHLAY
+      
+      ! For high LAI canopies, make sure DLAI does not go too large.
+      IF(DLAI.GT.0.1)THEN
+          DLAI = 0.1
+      ENDIF
       
 ! Calculate transmittance through one elementary layer with thickness DLAI
 10    KK = 0            ! Initialise variable used to calculate NLAY
@@ -1942,8 +1964,8 @@ END SUBROUTINE EXDIFF
 ! Check to see not too many elementary layers - if so, try again with
 ! higher DLAI.
 30    KK = KK + 1
-      IF (KK.GT.50) THEN
-        DLAI = DLAI + 0.1
+      IF (KK.GT.MAXECHLAYER) THEN
+        DLAI = DLAI + 0.02
         GO TO 10
       END IF
 
@@ -1980,7 +2002,7 @@ END SUBROUTINE EXDIFF
       IMPLICIT NONE
       INTEGER NUMPNT,NLAY,Z1,Z2,IPT,ILAYER
       INTEGER LAYER(MAXP), MLAYER(MAXP)
-      REAL RTA(50)
+      REAL RTA(MAXECHLAYER)
       REAL TU(MAXP),TD(MAXP),DIFMU,DIFUP,DIFMD,DIFDN
     
 ! Z1 = no of layers above the equivalent layer in the EHC
@@ -2400,6 +2422,7 @@ END SUBROUTINE EXDIFF
         XMAX,YMAX,SHADEHT, &
         FOLT,ZBC,JLEAFT,BPTT,NOAGECT,PROPCT,JSHAPET,SHAPET, &
         NT,SLA,BEXT,BEXTANGT,BEXTANG)
+      
 ! a subroutine to calculate the transmittances of direct radiation
 ! and also the within and between-tree shading for beam
 !**********************************************************************
@@ -2467,8 +2490,7 @@ END SUBROUTINE EXDIFF
         RADABV,FBEAM,TAIR,TSOIL, &
         ARHO,ATAU,RHOSOL, &
         DIFUP,DIFDN,SCLOST,THDOWN,TCAN2,TLEAFTABLE,&
-          EMSKY,NUMPNT,TOTLAI,FOLLAY,FOLNTR,LGP,ABSRP,&
-          SOILLONGWAVEIPT)
+        EMSKY,NUMPNT,TOTLAI,FOLLAY,FOLNTR,LGP,ABSRP)
 ! This subroutine calculates the scattered radiation using the iterative
 ! method of Norman (1979). Outputs are
 ! DIFUP: the upwards scattered flux below gridpoint IPT
@@ -2489,10 +2511,9 @@ END SUBROUTINE EXDIFF
       REAL U(3,101),D(3,101),SUP(101),SDN(101),ADUM(101),TBEAM(101)
       REAL TCAN2, TLEAFTABLE(MAXT,MAXP) 
       REAL TLEAFLAYER(MLAYERI),ABSRP
-      REAL SOILLONGWAVEIPT(MAXP)
       REAL EMSKY,TOTLAI,FOLLAY(MAXLAY),FOLNTR
       INTEGER NUMPNT,LGP(MAXP)
-      
+
 ! These are temporary arrays within this subroutine.
 ! U(K,I) is the relative upwards flux in wavelength k incident on layer I
 ! D(K,I) is the relative downwards flux in wavelength k incident on layer I
@@ -2504,16 +2525,14 @@ END SUBROUTINE EXDIFF
 ! Jtot is the no. of layers in EHC (+1 for soil layer)
 ! NB the top layer is JTOT, the bottom layer is 1.
       JTOT = MLAYERI
-!write(uwattest,*)Jtot
 
-      IF (IWAVE.EQ.3) THEN      ! Call separate subroutine for THERMAL r
-        !CALL ABSTHERM(IPT,MLAYERI,LAYERI,EXPDIF, &
-        !RADABV,TAIR,TSOIL,RHOSOL, &
-        !DIFUP,DIFDN,SCLOST,ESOIL,THDOWN,ABSRP)
-        CALL ABSTHERM3(IPT,MLAYERI,LAYERI,EXPDIF, &
+      ! Call separate subroutine for THERMAL radiation
+      IF (IWAVE.EQ.3) THEN      
+        
+        CALL ABSTHERM(IPT,MLAYERI,LAYERI,EXPDIF, &
         RADABV,TAIR,TSOIL,RHOSOL, &
-        DIFUP,DIFDN,SCLOST,ESOIL,THDOWN,TCAN2,TLEAFTABLE(ITAR,IPT),TLEAFLAYER,&
-            SOILLONGWAVEIPT)
+        DIFUP,DIFDN,SCLOST,ESOIL,THDOWN,TCAN2,TLEAFTABLE(ITAR,IPT),TLEAFLAYER)
+        
         GOTO 1300                  ! End of this subroutine
       END IF
 
@@ -2601,144 +2620,22 @@ END SUBROUTINE EXDIFF
 1300  IF(IWAVE.EQ.3) THEN
         ! This is actually transmission, not scatter.
         ! For convenience, store it in the same array.
-        SCLOST(IPT,IWAVE) = U(IWAVE,JTOT)*RADABV
+        ! -- Already calculated and output by ABSTHERM3
       ELSE                                           
         SCLOST(IPT,IWAVE) = U(IWAVE,JTOT)*RADABV
       ENDIF
 
-
-
-
       RETURN
       END  !Scatter
 
+
+!**********************************************************************
 SUBROUTINE ABSTHERM(IPT,MLAYERI,LAYERI,EXPDIF,RADABV,TAIR,TSOIL,RHOSOL, &
-                    DIFUP,DIFDN,SCLOST,ESOIL,DOWNTH,ABSRP)
-! Calculate long-wave radiation absorption or emission. After Norman (1979).
-! Note that foliage temperature is assumed equal to air temperature.
-! This is appropriate here because the calculated value is part of the Rn
-! used in the Penman-Monteith equation, where the leaf is assumed at air T.
-!**********************************************************************
-
-    USE maestcom
-    IMPLICIT NONE
-    INTEGER JTOT,MLAYERI,IPT,LAYER1,J,LAYERI
-    REAL DIFDN(MAXP,3),DIFUP(MAXP,3),SCLOST(MAXP,3)
-    REAL DOWNTH(MAXP)
-    REAL U(MAXP),D(MAXP)    ! G Le Maire, replace 101 by MAXP
-    REAL EXPDIF,RADABV,TAIR,TSOIL,RHOSOL
-    REAL ELEAF,FF,ESOIL
-    REAL ABSRP
-    REAL, EXTERNAL :: TK
-    REAL, EXTERNAL :: ESOILFUN
-                    
-    ! These are temporary arrays within this subroutine.
-    ! U(I) is the upwards long-wave flux incident on layer I
-    ! D(I) is the  downwards long-wave flux incident on layer I
-
-    ! Jtot is the no. of layers in EHC (+1 for soil layer)
-    ! NB the top layer is JTOT, the bottom layer is 1.
-    JTOT = MLAYERI        ! Total number of layers
-
-    ! Calculate the values of relative downwards and upwards flux densities
-    ! for thermal radiation for the elementary layers.
-    D(JTOT) = RADABV ! Thermal flux above the top layer in EHC.
-    ELEAF = SIGMA * (TK(TAIR)**4.)  ! Emission from leaf (assume Tleaf
-    FF = ELEAF * (1.-EXPDIF) ! Relative emissivity of elementary layer
-    DO J = JTOT-1, 1, -1
-        D(J) = D(J+1)*EXPDIF + FF
-    END DO
-
-    ! Soil emission
-    ESOIL = ESOILFUN(TSOIL)
-
-    ! Soil reflection
-    U(1) = ESOIL + RHOSOL*D(1)
-
-    ! Error corrected from previous version, which here had D(JTOT-1) in lieu of D(1). V. small effect.
-    DO J = 2,LAYERI
-        U(J) = U(J-1)*EXPDIF + FF
-    END DO
-
-    ! Summarise calculations.
-    DIFDN(IPT,3) = (D(LAYERI) - ELEAF*EMLEAF)*ABSRP      ! Downward thermal fl
-    DIFUP(IPT,3) = (U(LAYERI) - ELEAF*EMLEAF)*ABSRP      ! Upward thermal flux
-    SCLOST(IPT,3) = 0.0   ! Can assume zero scattering in thermal wave
-    DOWNTH(IPT) = D(1)
-
-
-    RETURN
-END SUBROUTINE ABSTHERM
-
-
-!**********************************************************************
-SUBROUTINE ABSTHERM1(IPT,MLAYERI,LAYERI,EXPDIF,RADABV,TAIR,TSOIL,RHOSOL, &
                     DIFUP,DIFDN,SCLOST,ESOIL,DOWNTH,TCAN2,TLEAF,TLEAFLAYER)
-! Calculate long-wave radiation absorption or emission. After Norman (1979).
-! Note that foliage temperature is assumed equal to air temperature.
-! This is appropriate here because the calculated value is part of the Rn
-! used in the Penman-Monteith equation, where the leaf is assumed at air T.
-!**********************************************************************
-
-    USE maestcom
-    IMPLICIT NONE
-    INTEGER JTOT,MLAYERI,IPT,LAYER1,J,LAYERI
-    REAL DIFDN(MAXP,3),DIFUP(MAXP,3),SCLOST(MAXP,3)
-    REAL DOWNTH(MAXP)
-    REAL U(MAXP),D(MAXP)    ! G Le Maire, replace 101 by MAXP
-    REAL EXPDIF,RADABV,TAIR,TSOIL,RHOSOL
-    REAL ELEAF,FF,ESOIL, TCAN2,TLEAF
-    REAL TLEAFLAYER (MLAYERI)
-    REAL, EXTERNAL :: TK
-    REAL, EXTERNAL :: ESOILFUN
-                    
-    ! These are temporary arrays within this subroutine.
-    ! U(I) is the upwards long-wave flux incident onfrom layer I            ! je crois que U monte depuis I et que D descend sur I
-    ! D(I) is the  downwards long-wave flux incident on/from layer I
-
-    ! Jtot is the no. of layers in EHC (+1 for soil layer)
-    ! NB the top layer is JTOT, the bottom layer is 1.
-    JTOT = MLAYERI        ! Total number of layers
-
-    ! Calculate the values of relative downwards and upwards flux densities
-    ! for thermal radiation for the elementary layers.
-    D(JTOT) = RADABV ! Thermal flux above the top layer in EHC.
-!    ELEAF = SIGMA * (TK(TAIR)**4.)  ! Emission from leaf (assume Tleaf = Tair within the canopy
-    ELEAF = SIGMA * (TK(TCAN2)**4.) *EMLEAF ! Emission from leaf (assume Tleaf = Tcanopy)
-    FF = ELEAF * (1.-EXPDIF) ! Relative emissivity of elementary layer
-
-    DO J = JTOT-1, 1, -1
-        D(J) = D(J+1)*EXPDIF + FF
-    END DO
-
-    ! Soil emission
-    ESOIL = ESOILFUN(TSOIL)
-
-    ! Soil reflection
-    U(1) = ESOIL + RHOSOL*D(1)
-
-    ! Error corrected from previous version, which here had D(JTOT-1) in lieu of D(1). V. small effect.
-    DO J = 2,LAYERI
-        U(J) = U(J-1)*EXPDIF + FF 
-    END DO
-
-    ! Summarise calculations.
-    ELEAF = SIGMA * (TK(TLEAF)**4.)  ! Emission from leaf 
-    DIFDN(IPT,3) = (D(LAYERI) - ELEAF) *EMLEAF!- ELEAF*EMLEAF      ! Downward thermal flux.    Attention, On soustraie ELEAF que à la fin car on suppose que la feuille influence l'air autour et pas la feuille de la couche superieur
-    DIFUP(IPT,3) = (U(LAYERI) - ELEAF) *EMLEAF!- ELEAF*EMLEAF      ! Upward thermal flux     Porposition modification Christina & Le Maire June 2014
-    SCLOST(IPT,3) = 0.0   ! Can assume zero scattering in thermal wave
-    DOWNTH(IPT) = D(1)
-
-    RETURN
-    END SUBROUTINE ABSTHERM1
-
-    !**********************************************************************
-SUBROUTINE ABSTHERM2(IPT,MLAYERI,LAYERI,EXPDIF,RADABV,TAIR,TSOIL,RHOSOL, &
-                    DIFUP,DIFDN,SCLOST,ESOIL,DOWNTH,TCAN2,TLEAF,TLEAFLAYER)
-! Calculate long-wave radiation absorption or emission. After Norman (1979).
-! Note that foliage temperature is assumed equal to air temperature.
-! This is appropriate here because the calculated value is part of the Rn
-! used in the Penman-Monteith equation, where the leaf is assumed at air T.
+! Calculate long-wave radiation absorption or emission.
+! Note that foliage temperature is assumed equal leaf temperature
+! calculated at the previous iteration on air temperature within the canopy.
+! Based on Van de Griend (1989) and the infinite reflexion of Francois (2002)
 !**********************************************************************
 
     USE maestcom
@@ -2753,137 +2650,69 @@ SUBROUTINE ABSTHERM2(IPT,MLAYERI,LAYERI,EXPDIF,RADABV,TAIR,TSOIL,RHOSOL, &
     REAL, EXTERNAL :: TK
     REAL, EXTERNAL :: ESOILFUN
                     
-    ! These are temporary arrays within this subroutine.
-    ! U(I) is the upwards long-wave flux incident onfrom layer I            ! je crois que U monte depuis I et que D descend sur I
-    ! D(I) is the  downwards long-wave flux incident on/from layer I
-
     ! Jtot is the no. of layers in EHC (+1 for soil layer)
     ! NB the top layer is JTOT, the bottom layer is 1.
     JTOT = MLAYERI        ! Total number of layers
 
-    ! Calculate the values of relative downwards and upwards flux densities
-    ! for thermal radiation for the elementary layers.
-    ! based on Van de Grien 1989
-
-    D(JTOT) = RADABV ! Thermal flux above the top layer in EHC.
-
-    ELEAF = SIGMA * (TK(TCAN2)**4.) ! Emission from leaf (assume Tleaf = Tcanopy)
-
-    TRLEAF = EXPDIF ! leaf transmisivity
-    RFLEAF = (1-EXPDIF)*(1-EMLEAF)  ! leaf reflectivity  
-    RFSOIL = (1-EMSOIL) ! soil reflectivity
-    
-    FF = ELEAF * (1.-EXPDIF) *EMLEAF * (1/(1-RFLEAF**2)) !  Relative emissivity of elementary layer & scatering with one layer
-        
-    DO J = JTOT-1, 1, -1
-       D(J) = D(J+1)*EXPDIF * (1/(1-RFLEAF**2)) + FF
-    END DO
-
-    D(1) = D(2)*EXPDIF * (1/(1-RFSOIL*RFLEAF)) + FF
-
-    ! Soil emission
-    ESOIL = ESOILFUN(TSOIL)
-
-    ! Soil reflection
-    U(1) = (ESOIL + RHOSOL*D(1)) * (1/(1-RFLEAF*RFSOIL)) 
-
-    ! Error corrected from previous version, which here had D(JTOT-1) in lieu of D(1). V. small effect.
-    DO J = 2,LAYERI
-        U(J) = U(J-1)*EXPDIF * (1/(1-RFLEAF**2))+ FF 
-    END DO
-
-    ! Summarise calculations.
-    ELEAF = SIGMA * (TK(TLEAF)**4.)  ! Emission from leaf 
-
-    DIFDN(IPT,3) = (D(LAYERI) - ELEAF *(1-(1/(1-RFLEAF*(1-EXPDIF)) - 1)))*EMLEAF
-
-    DIFUP(IPT,3) = (U(LAYERI) - ELEAF *(1-(1/(1-RFLEAF*(1-EXPDIF)) - 1)))*EMLEAF
-    
-    SCLOST(IPT,3) = 0.0   ! Can assume zero scattering in thermal wave
-    DOWNTH(IPT) = D(1)
-
-    RETURN
-END SUBROUTINE ABSTHERM2
-
-
-SUBROUTINE ABSTHERM3(IPT,MLAYERI,LAYERI,EXPDIF,RADABV,TAIR,TSOIL,RHOSOL, &
-                    DIFUP,DIFDN,SCLOST,ESOIL,DOWNTH,TCAN2,TLEAF,TLEAFLAYER,&
-                    SOILLONGWAVEIPT)
-! Calculate long-wave radiation absorption or emission. After Norman (1979).
-! Note that foliage temperature is assumed equal to air temperature.
-! This is appropriate here because the calculated value is part of the Rn
-! used in the Penman-Monteith equation, where the leaf is assumed at air T.
-!**********************************************************************
-
-    USE maestcom
-    IMPLICIT NONE
-    INTEGER JTOT,MLAYERI,IPT,LAYER1,J,LAYERI
-    REAL DIFDN(MAXP,3),DIFUP(MAXP,3),SCLOST(MAXP,3)
-    REAL DOWNTH(MAXP)
-    REAL U(MAXP),D(MAXP)    ! G Le Maire, replace 101 by MAXP
-    REAL EXPDIF,RADABV,TAIR,TSOIL,RHOSOL
-    REAL ELEAF,FF,ESOIL, TCAN2,TLEAF
-    REAL TLEAFLAYER (MLAYERI), TRLEAF, RFLEAF,RFSOIL
-    REAL SOILLONGWAVEIPT(MAXP)
-    REAL, EXTERNAL :: TK
-    REAL, EXTERNAL :: ESOILFUN
-                    
     ! These are temporary arrays within this subroutine.
-    ! U(I) is the upwards long-wave flux incident onfrom layer I            ! je crois que U monte depuis I et que D descend sur I
+    ! U(I) is the upwards long-wave flux incident onfrom layer I            
     ! D(I) is the  downwards long-wave flux incident on/from layer I
-
-    ! Jtot is the no. of layers in EHC (+1 for soil layer)
-    ! NB the top layer is JTOT, the bottom layer is 1.
-    JTOT = MLAYERI        ! Total number of layers
-
+    ! init 0 to be sure
+    do J = 1,JTOT
+        D(J)=0
+        U(J)=0
+    END DO
+    
     ! Calculate the values of relative downwards and upwards flux densities
     ! for thermal radiation for the elementary layers.
     ! based on Van de Grien 1989
-
     D(JTOT) = RADABV ! Thermal flux above the top layer in EHC.
 
     ELEAF = SIGMA * (TK(TCAN2)**4.) ! Emission from leaf (assume Tleaf = Tcanopy)
-!    ELEAF = SIGMA * (TK(TAIR)**4.) ! Emission from leaf (assume Tleaf = Tcanopy)
 
-    TRLEAF = EXPDIF ! leaf transmisivity
-    RFLEAF = (1-EXPDIF)*(1-EMLEAF)  ! leaf reflectivity
+    TRLEAF = EXPDIF !  transmissivity of elementary canopy layer
+    RFLEAF = (1-EXPDIF)*(1-EMLEAF)  ! reflectivity of elementary canopy layer
     RFSOIL = (1-EMSOIL) ! soil reflectivity
     
-    
-    FF = ELEAF * (1.-EXPDIF) *EMLEAF * (EXPDIF*RFLEAF/(1-RFLEAF**2) + 1/(1-RFLEAF**2)) ! Relative emissivity of elementary layer & scatering with one layer
+    ! Relative emissivity of elementary layer & scattering with one layer
+    FF = ELEAF * (1.-EXPDIF) *EMLEAF * (EXPDIF*RFLEAF/(1-RFLEAF**2) + 1/(1-RFLEAF**2))
 
-    ! down rayonnement dont l'origine est l'atmosphere ou la couche superieur
+    ! Downward flux comes from atmosphere or layer above (FF)
     DO J = JTOT-1, 1, -1 
        D(J) = D(J+1)*EXPDIF * (EXPDIF*RFLEAF/(1-RFLEAF**2) + 1/(1-RFLEAF**2)) + FF
     END DO
 
+    ! Downward flux onto soil surface
+    ! Same equation as above, but use soil reflectivity etc.
     D(1) = D(2)*EXPDIF * (1/(1-RFSOIL*RFLEAF)) + ELEAF*(1-EXPDIF)*EMLEAF*(1/(1-RFSOIL*RFLEAF))
 
     ! Soil emission
     ESOIL = ESOILFUN(TSOIL)
 
-    ! Soil reflection
+    ! Soil reflection (upward thermal flux)
     U(1) = (ESOIL + RHOSOL*D(1)) * (1/(1-RFLEAF*RFSOIL) + EXPDIF*RFLEAF/(1-RFLEAF**2)) 
 
     ! Error corrected from previous version, which here had D(JTOT-1) in lieu of D(1). V. small effect.
-    DO J = 2,LAYERI
+    DO J = 2,JTOT
         U(J) = U(J-1)*EXPDIF * (EXPDIF*RFLEAF/(1-RFLEAF**2) + 1/(1-RFLEAF**2))+ FF 
     END DO
 
-    ! Summarise calculations.
-    ELEAF = SIGMA * (TK(TLEAF)**4.)  ! Emission from leaf 
+    ! Emission from leaf (uses leaf temperature of the current voxel)
+    ELEAF = SIGMA * (TK(TLEAF)**4.)   
 
+    ! Net downward flux
     DIFDN(IPT,3) = (D(LAYERI) - ELEAF *(1-RFLEAF*(1-EXPDIF)*1/(1-RFLEAF**2)))*EMLEAF
 
+    ! Net upward flux
     DIFUP(IPT,3) = (U(LAYERI) - ELEAF *(1-RFLEAF*(1-EXPDIF)*1/(1-RFLEAF**2)))*EMLEAF
     
-    SCLOST(IPT,3) = 0.0   ! Can assume zero scattering in thermal wave
+    ! Upward 'lost' radiation (not just scattering)
+    SCLOST(IPT,3) = U(JTOT)
+    
     DOWNTH(IPT) = D(1)
-    SOILLONGWAVEIPT(IPT) = D(1)-U(1)
-    !SOILLONGWAVEIPT(IPT) = D(1)*EMSOIL - ESOIL * (1 - RFLEAF/(1-RFLEAF*RFSOIL))
     
     RETURN
-END SUBROUTINE ABSTHERM3
+END SUBROUTINE ABSTHERM
 
     SUBROUTINE TPROFILE(IPT,ITAR,LAYER, MLAYERI, TLEAFTABLE,NUMPNT,TLEAFLAYER)
 ! Temperature profile within the canopy
@@ -2931,7 +2760,7 @@ SUBROUTINE ABSRAD(ITAR,IPT,IWAVE, &
     
     REAL, EXTERNAL :: TK
     
-    IF (ZEN.GT.1.56) THEN   ! limite l'angle zenithal à 89.4° pour éviter certains bug ! mars 2013 mathias
+    IF (ZEN.GT.1.56) THEN   ! limite l'angle zenithal ? 89.4? pour ?viter certains bug ! mars 2013 mathias
         BMULT = 0.0
     END IF
 
@@ -2957,7 +2786,7 @@ SUBROUTINE ABSRAD(ITAR,IPT,IWAVE, &
         DMEAN = DMEAN/REAL(NZEN)
 
     ! BM DFX does not need to be *DMEAN because RELDF takes this into account
-        SCATFX(IPT,IWAVE) = SCAT*DMEAN 
+    SCATFX(IPT,IWAVE) = SCAT*DMEAN
 
     IF(IWAVE.EQ.3) THEN
        DFLUX(IPT,IWAVE) = SCATFX(IPT,IWAVE)
@@ -2968,8 +2797,8 @@ SUBROUTINE ABSRAD(ITAR,IPT,IWAVE, &
     IF(IWAVE.EQ.3) THEN                 ! Modification Christina June 2014
         DFLUX(IPT,IWAVE)= DFLUX(IPT,IWAVE)!*ABSRP !- ELEAF*EMLEAF ! emmission from leaf (2 directions)
     ELSE
-        DFLUX(IPT,IWAVE)= DFLUX(IPT,IWAVE)*ABSRP 
-        SCATFX(IPT,IWAVE)= SCATFX(IPT,IWAVE)*ABSRP
+    DFLUX(IPT,IWAVE)= DFLUX(IPT,IWAVE)*ABSRP
+    SCATFX(IPT,IWAVE)= SCATFX(IPT,IWAVE)*ABSRP
     ENDIF 
 
     
@@ -3007,8 +2836,7 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
                     DOWNTHTREE,EXPFACTORS,RGLOBABV,RGLOBABV12, &
                     RGLOBUND,RADINTERC12,RADINTERC1,RADINTERC2, &
                     RADINTERC3,SCLOSTTOT,FRACAPAR,RADINTERC, &
-                    SOILLONGWAVETREE,SOILLONGWAVE,RGLOBUND1, &
-                    RGLOBUND2,DOWNTHAV)
+                    RGLOBUND1, RGLOBUND2,DOWNTHAV)
 ! This subroutine calculates average global radiation (W m-2) underneath the
 ! canopy, for use in heat balance calculations.
 ! RAD June 2008.
@@ -3024,8 +2852,8 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
     REAL RADINTERC3,RGLOBABV,RGLOBABV12,SCLOSTTOT,PARUNDEROS
     REAL FRACAPAR,CHECK,PARUSMEAN,FAPARUS,THRABUS,FAPAROS
     REAL FANIROS,FANIRMULT,RADINTERC12TOT
-    REAL DOWNTHAV,RGLOBUND,RADINTERC
-    REAL SOILLONGWAVE,SOILLONGWAVETREE(MAXT),RGLOBUND1,RGLOBUND2,RGLOBUND3,SCLOSTTOT1,SCLOSTTOT2
+    REAL DOWNTHAV,RGLOBUND,RADINTERC, SCLOSTTOT3
+    REAL RGLOBUND1,RGLOBUND2,RGLOBUND3,SCLOSTTOT1,SCLOSTTOT2
     
     ! Units: SCLOST W m-2, THRAB W tree-1, RADABV W tree -1,
     RADINTERC = 0.0
@@ -3051,7 +2879,7 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
     RADINTERC3 = RADINTERC3 / PLOTAREA
     RADINTERC12 = RADINTERC1 + RADINTERC2
     RADINTERC = RADINTERC1 + RADINTERC2 + RADINTERC3
-
+    
     ! Understorey APAR. Note that APARUS will not be exactly the same,
     ! PARUS calculated in the understorey routines is at different poi
     ! the more US points we have, and the more NOTREES, the closer the
@@ -3099,27 +2927,18 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
     END DO
 
     ! Lost scattered radiation
-    ! Take the average across the trees - is the best I can think of (
-    ! Either way, this is a small component.
-    ! Note that SCLOSTTREE was already in W m-2 (soil), so no weighing
+    ! Take the average across the trees
     SCLOSTTOT = SUM(SCLOSTTREE(1:NOTARGETS,1:2)) / NOTARGETS
     SCLOSTTOT1 = SUM(SCLOSTTREE(1:NOTARGETS,1)) / NOTARGETS
     SCLOSTTOT2 = SUM(SCLOSTTREE(1:NOTARGETS,2)) / NOTARGETS
     
-    
     ! Average downward thermal flux - averaged across trees:
     DOWNTHAV = SUM(DOWNTHTREE(1:NOTARGETS)) / NOTARGETS
-    SOILLONGWAVE = SUM(SOILLONGWAVETREE(1:NOTARGETS))/NOTARGETS
-    
+
     ! Global radiation under the canopy, reaching the soil surface.
     RGLOBUND = RGLOBABV12 - RADINTERC12TOT - SCLOSTTOT + DOWNTHAV
     RGLOBUND1 = RADABV(IHOUR,1) - RADINTERC1 - SCLOSTTOT1
     RGLOBUND2 = RADABV(IHOUR,2) - RADINTERC2 - SCLOSTTOT2
-    
-    
-    !write(uwattest, 999)rglobund,rglobabv12,radinterc12tot,sclosttot,downthav, &
-        !radinterc1+radinterc2+radinterc3
-999   FORMAT(6(F15.5,1X))
 
     RETURN
 END SUBROUTINE GETRGLOB
@@ -3140,17 +2959,3 @@ REAL FUNCTION ESOILFUN(SOILTK)
 
     RETURN
 END FUNCTION ESOILFUN
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -29,12 +29,14 @@ SUBROUTINE INPUTUSSTR(NOUSPOINTS,X0,Y0,GRDAREAI,XLU,YLU,ZLU,USLAI,NOFUDATES,DATE
     INTEGER NONUDATES,NOFUDATES,NALPHA
     INTEGER DATESFU(maxdate)
     INTEGER DATESHU(maxdate),DATESNU(maxdate)
+    INTEGER NOLIADATES
+    INTEGER DATESLIAOUT(maxdate)
     REAL XLU(MAXP),YLU(MAXP),ZLU(MAXP)
     REAL COORDS(MAXP*2), XMAX, YMAX,X0,Y0
     REAL XWIDTH,YWIDTH,GRDAREAI,SPACING,EXTKUS
     REAL USLAI(maxdate,MAXT)
     REAL HTUS(maxdate,MAXT),FOLNUS(maxdate,MAXT)
-    REAL ALPHA(MAXANG),FALPHA(MAXANG),BEXTANG(MAXANG)
+    REAL ALPHA(MAXANG),FALPHA(MAXANG,MAXDATE),BEXTANG(MAXANG)
     NAMELIST /CONTROL/ NOUSPOINTS,XMAX,YMAX,X0,Y0
  
     ! Read control flags: no of points and type of input
@@ -69,17 +71,21 @@ SUBROUTINE INPUTUSSTR(NOUSPOINTS,X0,Y0,GRDAREAI,XLU,YLU,ZLU,USLAI,NOFUDATES,DATE
     CALL READTREEARRAY(USTOREYI,7,NOUSPOINTS,NONUDATES,DATESNU,FOLNUS)
     CALL READTREEARRAY(USTOREYI,8,NOUSPOINTS,NOFUDATES,DATESFU,USLAI)
     ! Calculate foliar extinction coefficient - is in vertical direction only
-!    CALL READLIA(USTOREYI, NALPHA, ALPHA, FALPHA)              ! a remettre !!!!!!!!!!! ATTENTION
+    CALL READLIA(USTOREYI, NALPHA, ALPHA, FALPHA,DATESLIAOUT,NOLIADATES)    
     CALL EXBEAM(NALPHA,ALPHA,FALPHA,1.0,0.0,EXTKUS,BEXTANG)
 
+    
+    
     RETURN
 END SUBROUTINE INPUTUSSTR
 
 !**********************************************************************
-SUBROUTINE INPUTUSPHY(JMAXN25I,IECOUI,EAVJI,EDVJI,DELSJI,TVJUPI,TVJDNI,     &
-                        VCMAXN25I,EAVCI,EDVCI,DELSCI,UNMINI,AJQI,ABSRPI,    &
-                        GSBG0U,GSBG1U,CICARATI,RD0I,RDKI,RDTI,SLAI,EFFYI,   &
-                        MOSS,JMAX25MI,VCMAX25MI,THETAMI)
+SUBROUTINE INPUTUSPHY(JMAXN25I,IECOUI,EAVJI,EDVJI,DELSJI,TVJUPI,TVJDNI,        &
+                        VCMAXN25I,EAVCI,EDVCI,DELSCI,UNMINI,AJQI,ABSRPI,       &
+                        GSBG0U,GSBG1U,CICARATI,RD0I,RDKI,RDTI,SLAI,EFFYI,      &
+                        MOSS,JMAX25MI,VCMAX25MI,THETAMI,C4FRACI,               &
+                        VCMAXC4,TVJUPC4, TVJDNC4, DELSCC4, EAVCC4, EDVCC4, CICAC4)
+
 ! Get understorey physiology parameters.
 ! 16/8/00 Change to take Ball-Berry params for gs only.
 ! 22/12/03 Add option to specify Ci:Ca ratio - helpful for moss
@@ -89,18 +95,23 @@ SUBROUTINE INPUTUSPHY(JMAXN25I,IECOUI,EAVJI,EDVJI,DELSJI,TVJUPI,TVJDNI,     &
     IMPLICIT NONE
     
     INTEGER UFILE,IECO,MOSS,IOERROR,IECOUI
+    REAL VCMAXC4,TVJUPC4,CICAC4,C4FRAC
+    REAL DELSCC4,VCMAXC4I,TVJUPC4I,CICAC4I,C4FRACI,DELSCC4I
+    REAL EAVCC4I, EAVCC4, EDVCC4I, EDVCC4 
     REAL JMAXN25,JMAXN25I,JMAX25M,JMAX25MI
     REAL EAVJ,EDVJ,DELSJ,AJQ,EAVC,EDVC,DELSC,TVJUP,TVJDN
     REAL VCMAXN25,UNMIN,ABSRP,JMAX25,VCMAX25,THETA,CICARAT
-    REAL G0,G1,RD,RDK,RDT,SLA,EFFY,VCMAX25MI
+    REAL G0,G1,RD,RDK,RDT,SLA,EFFY
     REAL THETAMI,VCMAXN25I,UNMINI,ABSRPI,EAVCI
     REAL EDVCI,EAVJI,EDVJI,DELSJI,AJQI,DELSCI,TVJUPI
     REAL TVJDNI,CICARATI,GSBG0U,GSBG1U,RD0I,RDKI
-    REAL RDTI,SLAI,EFFYI
+    REAL RDTI,SLAI,EFFYI,VCMAX25MI,TVJDNC4,TVJDNC4I
 
+    NAMELIST /PHYCON/ C4FRAC
     NAMELIST /JMAXPARS/ IECO,EAVJ,EDVJ,DELSJ,AJQ
     NAMELIST /VCMAXPARS/ EAVC,EDVC,DELSC,TVJUP,TVJDN
-    NAMELIST /BEWDYPARS/ JMAXN25,VCMAXN25,UNMIN,ABSRP
+    NAMELIST /BEWDYPARS/ JMAX25,VCMAX25,UNMIN,ABSRP
+    NAMELIST /USC4PARS/ VCMAXC4, TVJUPC4, TVJDNC4, CICAC4, DELSCC4, EAVCC4, EDVCC4
     NAMELIST /MOSSPARS/ JMAX25,VCMAX25,THETA
     NAMELIST /CICA/ CICARAT
     NAMELIST /BBGS/ G0, G1
@@ -118,15 +129,52 @@ SUBROUTINE INPUTUSPHY(JMAXN25I,IECOUI,EAVJI,EDVJI,DELSJI,TVJUPI,TVJDNI,     &
         MOSS = 1
     ELSE
         MOSS = 0
-	      ! Otherwise Read in BEWDY-specific params
+    ENDIF
+    
+    ! Read PHYCON to decide whether to read both bewdypars and collatz pars.
+    REWIND(UFILE)
+    READ(UFILE, PHYCON, IOSTAT=IOERROR)
+    IF(IOERROR.EQ.0)THEN
+        C4FRACI = C4FRAC
+    ELSE
+        C4FRACI = 0.0
+    ENDIF
+    
+    ! Read collatz
+    DELSCC4 = 0.0
+    TVJUPC4 = -100.0
+    TVJDNC4 = -100.0
+    CICAC4 = 0.7
+    !VCMAXC4, TVJUPC4, TVJDNC4, DELSCC4, EAVCC4, EDVCC4
+    
+    IF(C4FRACI.GT.0.0)THEN
+        REWIND(UFILE)
+        READ(UFILE, USC4PARS, IOSTAT=IOERROR)
+        IF(IOERROR.EQ.0)THEN
+            VCMAXC4I = VCMAXC4
+            TVJUPC4I = TVJUPC4
+            TVJDNC4I = TVJDNC4
+            CICAC4I = CICAC4
+            DELSCC4I = DELSCC4
+            EAVCC4I = EAVCC4 
+            EDVCC4I = EDVCC4 
+        ELSE
+            CALL SUBERROR('INPUT ERROR: MISSING C4 UNDERSTOREY PARAMS',IFATAL,IOERROR)
+        ENDIF
+    ENDIF
+    
+    
+    ! Otherwise Read in BEWDY-specific params
     REWIND (UFILE)
     READ (UFILE,BEWDYPARS,IOSTAT = IOERROR)
-    IF (IOERROR.NE.0) CALL SUBERROR('INPUT ERROR: MISSING UNDERSTOREY BEWDY PARAMS',IFATAL,IOERROR)
-        JMAXN25I = JMAXN25
-        VCMAXN25I = VCMAXN25
+    IF (IOERROR.NE.0) THEN
+        CALL SUBERROR('INPUT ERROR: MISSING UNDERSTOREY PARAMS',IFATAL,IOERROR)
+    ELSE
+        JMAXN25I = JMAX25
+        VCMAXN25I = VCMAX25
         UNMINI = UNMIN
         ABSRPI = ABSRP
-    END IF
+    ENDIF
 
     ! Read in T-response parameters
     REWIND (UFILE)
@@ -217,7 +265,7 @@ SUBROUTINE OUTPUTUS(IDAY,NOUSPOINTS,XLU,YLU,ZLU,UIBEAM,UIDIFF,PARUS,APARUS,PSUS,
             END DO
         END DO    
         997 FORMAT (I3,1X,2(I4,1X),10(F7.2, 1X))
-    ELSE IF (IOFORMAT .EQ. 0) THEN
+    ELSE IF (IOFORMAT .EQ. 1) THEN
         DO I = 1,KHRS
             DO J = 1,NOUSPOINTS
                 WRITE(UPARUS) REAL(IDAY), REAL(I),REAL(J),XLU(J),YLU(J),ZLU(J),&
@@ -410,4 +458,93 @@ SUBROUTINE PSMOSS(APAR,TLEAF,RH,CA,JMAX25,IECO,EAVJ,EDVJ,DELSJ,TVJUP,TVJDN,&
     PS = MIN(AJ,AC)
 
     RETURN
-END SUBROUTINE PSMOSS
+    END SUBROUTINE PSMOSS
+
+    
+!**********************************************************************
+ SUBROUTINE COLLATZC4(VCMAX25, TAIR, TVJUP, TVJDN, DELSC, EAVC, EDVC,  &
+                       DIFF, SUNLA, BEAM, ABSRP, KEXT, LAI, CICA, CA,   &
+                       APAR, PS, GS)
+!
+! Calculates assimilation using the Collatz C4 model. 
+!
+! References
+! ----------
+! * Collatz, G, J., Ribas-Carbo, M. and Berry, J. A. (1992) Coupled 
+!   Photosynthesis-Stomatal Conductance Model for Leaves of C4 plants. 
+!   Aust. J. Plant Physiol., 19, 519-38.
+!
+! Temperature dependancies:
+! * Massad, R-S., Tuzet, A. and Bethenod, O. (2007) The effect of temperature 
+!   on C4-type leaf photosynthesis parameters. Plant, Cell and Environment, 
+!   30, 1191-1204.
+!**********************************************************************
+    IMPLICIT NONE
+    
+    REAL, EXTERNAL :: QUADM ! largest root
+    REAL, EXTERNAL :: VCMAXTFN
+    
+    ! curvature parameter, transition between light-limited and
+    ! carboxylation limited flux. Collatz table 2
+    REAL, PARAMETER :: beta1 = 0.83	
+    
+    ! curvature parameter, co-limitaiton between flux determined by
+    ! Rubisco and light and CO2 limited flux. Collatz table 2
+    REAL, PARAMETER :: beta2 = 0.83	
+    
+    ! initial slope of photosynthetic CO2 response (mol m-2 s-1), 
+    ! Collatz table 2
+    REAL, PARAMETER :: kslope = 0.7	
+
+    ! quantium efficiency for C4 plants has no Ci and temp dependancy
+    REAL, PARAMETER :: alphac4 = 0.06          
+    
+    REAL, INTENT(IN) :: CICA,CA
+    REAL, INTENT(IN) :: VCMAX25, TAIR, TVJUP, TVJDN, DELSC, EAVC, EDVC
+    REAL, INTENT(IN) :: DIFF, SUNLA, BEAM, ABSRP, KEXT, LAI
+    
+    REAL, INTENT(OUT) :: PS, APAR, GS
+    
+    !REAL, PARAMETER :: EAVC = 67294.0
+    !REAL, PARAMETER :: EDVC = 144568.0
+    !REAL, PARAMETER :: DELSC = 472.0
+    
+    ! Intermediate vars.    
+    INTEGER :: IOERROR
+    REAL :: MSUN, MSH, VCMAX, CI, PSSUN, PSSH, PARSUN, PARSH
+    
+    CI = CICA * CA
+    
+    ! Scaling follows Campbell&Norman 2000 (section 15.9, 'Calculating canopy assimilation from leaf assimilation') 
+    ! Average PAR on shaded leaves (=diffuse component) (this is an exponentially weighted average)
+    PARSH = DIFF*(1.0 - EXP(-SQRT(ABSRP)*KEXT*LAI))/(SQRT(ABSRP)*KEXT*LAI)
+    
+    ! Average PAR on sunlit leaves
+    PARSUN = ABSRP*(KEXT*BEAM + PARSH)
+    
+    ! Total canopy APAR (not used anymore in calculations below but output)
+    APAR = (DIFF + SUNLA * BEAM) * ABSRP * (1.0 - EXP(-KEXT * LAI))
+    
+    ! Recalculate Vcmax, using values above, really this would be removed
+    ! And passed as Params, Remko to decide on how to structure this.
+    ! Maximum Rubisco activity, umol m-2 s-1
+    VCMAX = VCMAXTFN(VCMAX25, TAIR, EAVC, EDVC, DELSC, TVJUP, TVJDN)   
+    
+    ! Rubisco and light-limited capacity (Appendix, 2B)
+    MSUN = QUADM(beta1, -(VCMAX + alphac4 * PARSUN), (VCMAX * alphac4 * PARSUN), IOERROR)
+    MSH = QUADM(beta1, -(VCMAX + alphac4 * PARSH), (VCMAX * alphac4 * PARSH), IOERROR)
+     
+    ! The limitation of the overall rate by M and CO2 limited flux:
+    PSSUN = QUADM(beta2, -(MSUN + kslope * CI), (MSUN * kslope * CI), IOERROR)
+    PSSH = QUADM(beta2, -(MSH + kslope * CI), (MSH * kslope * CI), IOERROR)
+    
+    ! Total canopy photosynthesis (mu mol m-2 (ground) s-1)
+    PS = LAI*(SUNLA*PSSUN + (1.0 - SUNLA)*PSSH)
+    
+    ! Canopy stomatal conductance, using CI
+    GS = PS/(CA-CI)
+    
+    RETURN
+END SUBROUTINE COLLATZC4    
+
+    

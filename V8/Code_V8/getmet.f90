@@ -85,26 +85,16 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
     INTEGER DAYORHR,MSTART,MEND,ISTART,IEND,ICOL,MFLAG,I,NOMETCOLS
     NAMELIST /METFORMAT/ DAYORHR, KHRSPERDAY, NOCOLUMNS, COLUMNS, STARTDATE, ENDDATE
     REAL CAK,PRESSK,DIFSKY,SWMIN,SWMAX,ALAT,TTIMD
-    
-    CHARACTER*20 filenamenum !glm
-    INTEGER :: numpar !glm!
-    COMMON /PAR/ numpar !glm!
-    
+     
     990   FORMAT (A60)     ! For reading titles in input files.
     991   FORMAT (A12,A60) ! For writing comments to output files.
     
     ! Open input file with met data
-    !OPEN (UMET, FILE =trim(in_path)//'met.dat', STATUS='OLD', IOSTAT=IOERROR)
-    !IF (IOERROR.NE.0) THEN
-    !    CALL SUBERROR('ERROR OPENING MET FILE',IFATAL,IOERROR)
-    !END IF
+    OPEN (UMET, FILE =trim(in_path)//'met.dat', STATUS='OLD', IOSTAT=IOERROR)
+    IF (IOERROR.NE.0) THEN
+        CALL SUBERROR('ERROR OPENING MET FILE',IFATAL,IOERROR)
+    END IF
     
-    write(filenamenum,'(I4.4,A)') numpar,'_met.dat' !glm
-    OPEN(UMET, FILE=filenamenum, STATUS='OLD', IOSTAT=IOERROR)
-    !OPEN (UMET, FILE =trim(in_path)//'met.dat', STATUS='OLD', IOSTAT=IOERROR) !glm
-    !write(filenamenum,'(I4.4,A)') numpar,'_met.dat' !glm
- 
-    !OPEN (UMET, FILE =filenamenum, STATUS='OLD', IOSTAT=IOERROR) !glm
     READ (UMET, 990, IOSTAT=IOERROR) MTITLE
     IF (IOERROR.NE.0) THEN
         CALL SUBERROR('ERROR READING MET FILE',IFATAL,IOERROR)
@@ -159,7 +149,7 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
     IF (MFLAG.EQ.0) THEN ! Daily values
         DO I = 1,NOCOLUMNS
             ICOL = MISSING
-            IF (COLUMNS(I).EQ.'DATE')     THEN
+            IF (COLUMNS(I).EQ.'DATE'.OR.COLUMNS(I).EQ.'DOY')THEN
                 ICOL = MDDATE
             ELSEIF (COLUMNS(I).EQ.'WIND') THEN
                 ICOL = MDWIND
@@ -185,11 +175,17 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
                 ICOL = MDSWP
             ELSEIF (COLUMNS(I).EQ.'SWC') THEN
                 ICOL = MDSWC
+            ELSEIF (COLUMNS(I).EQ.'SW') THEN
+                ICOL = MDSWC
             ELSEIF (COLUMNS(I).EQ.'ET')  THEN
                 ICOL = MDET
-            ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  ! TEST
+			ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN
                 ICOL = MDTHR
+            ELSE
+                CALL SUBERROR('WARNING: Header includes unknown variable - ignored',&
+                              IWARN,0) 
             ENDIF
+            
             IF (ICOL.NE.MISSING) METCOLS(ICOL) = I
         END DO
         ! Check to see if any of the essential information is missing.
@@ -202,7 +198,7 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
     ELSE                 ! Hourly values
         DO I = 1,NOCOLUMNS
             ICOL = MISSING
-            IF (COLUMNS(I).EQ.'DATE') THEN
+            IF (COLUMNS(I).EQ.'DATE'.OR.COLUMNS(I).EQ.'DOY') THEN
                 ICOL = MHDATE
             ELSEIF (COLUMNS(I).EQ.'WIND') THEN
                 ICOL = MHWIND
@@ -238,11 +234,21 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
                 ICOL = MHSMD
             ELSEIF (COLUMNS(I).EQ.'SWC')  THEN
                 ICOL = MHSWC
+            ELSEIF (COLUMNS(I).EQ.'SW')  THEN
+                ICOL = MHSWC
             ELSEIF (COLUMNS(I).EQ.'SWP')  THEN
                 ICOL = MHSWP
-            ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
+            ELSEIF (COLUMNS(I).EQ.'TIME') THEN
+                ICOL = MHTIME
+            ELSEIF (COLUMNS(I).EQ.'VMFD')  THEN
+                ICOL = MHMFD
+			ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
                 ICOL = MHTHR
+            ELSE
+                CALL SUBERROR('WARNING: Header includes unknown variable - ignored',&
+                              IWARN,0) 
             ENDIF
+            
             IF (ICOL.NE.MISSING) METCOLS(ICOL) = I
         END DO
         ! Check to see if any of the essential information is missing.
@@ -792,10 +798,10 @@ SUBROUTINE GETMETHR(IDATE,ZEN,NOMETCOLS,METCOLS,CAK,PRESSK,SWMIN,SWMAX,DELTAT,AL
             RADABV(IHR,3) = DATAIN(IHR,METCOLS(MHTHR)) 
         END DO
     ELSE 
-        ! Calculate thermal radiation
+    ! Calculate thermal radiation
         CALL THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
     END IF
-        
+
     ! Read in values of CA if present
     IF (METCOLS(MHCA).NE.MISSING) THEN
         DO IHR = 1,KHRS
@@ -907,7 +913,7 @@ SUBROUTINE ASSIGNRAIN(TOTAL,PPT)
 !**********************************************************************
 
 !	USE MSFLIB        ! Library required by COMPAQ VISUAL FORTRAN - superseded
-!    USE IFPORT        ! Library required by Intel Visual Fortran 
+ !   USE IFPORT        ! Library required by Intel Visual Fortran 
     USE maestcom
     
     IMPLICIT NONE
@@ -925,8 +931,7 @@ SUBROUTINE ASSIGNRAIN(TOTAL,PPT)
       
     ! 1. All rain falls in one hour for light storms (<2 mm)
     IF (TOTAL.LE.2.) THEN
-        !RANVAL = RAND(IFLAG)   ! randomly select hour
-        CALL RANDOM_NUMBER(RANVAL) !glm, for compiling with a cluster
+        CALL RANDOM_NUMBER(RANVAL)   ! randomly select hour
         IRAIN = INT(RANVAL*KHRS)+1
         PPT(IRAIN) = TOTAL
     ! 2. All rain falls in 24 hours for storms >46 mm 
@@ -940,8 +945,7 @@ SUBROUTINE ASSIGNRAIN(TOTAL,PPT)
         IHRSWITHRAIN = MIN(INT((TOTAL/2)*KHRS/24),KHRS)
         RATE = TOTAL/REAL(IHRSWITHRAIN)
         DO I = 1, IHRSWITHRAIN
-            !RANVAL = RAND(IFLAG)   ! randomly select hours
-            CALL RANDOM_NUMBER(RANVAL) !glm, for compiling with the cluster
+            CALL RANDOM_NUMBER(RANVAL)   ! randomly select hours
             IRAIN = INT(RANVAL*KHRS)+1
             PPT(IRAIN) = PPT(IRAIN)+RATE
         END DO
@@ -1330,7 +1334,7 @@ SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
     IMPLICIT NONE
     INTEGER I
     REAL RADABV(MAXHRS,3),TAIR(MAXHRS),VPD(MAXHRS),FSUN(MAXHRS)
-    REAL TMP,EA,EMCLEAR,EMSKY(MAXHRS)
+    REAL EA,EMCLEAR,EMSKY(MAXHRS)
     REAL, EXTERNAL :: TK
     REAL, EXTERNAL :: SATUR
     
@@ -1349,18 +1353,13 @@ SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
         ! Monteith and Unsworth correction for cloudy sky. 
         ! The 1.06 SIGT4 - 119 formula seems problematic in some conditions. 
         ! Also suspect I had correction incorrect - check this!!
-        tmp = satur(tair(I))
         EA = SATUR(TAIR(I)) - VPD(I) !Old formula - see comments
-!        IF (IOFORMAT .EQ. 0) THEN
-!            WRITE(UWATTEST,*)EA
-!        ELSE IF(IOFORMAT .EQ. 1) THEN
-!            WRITE(UWATTEST) EA 
-!        ENDIF
+
         EMCLEAR = 0.642*(EA/TK(TAIR(I)))**(1./7.)
         EMSKY(I) = FSUN(I)*EMCLEAR + (1.-FSUN(I))*(0.84+0.16*EMCLEAR)
         RADABV(I,3) = EMSKY(I)*SIGMA*(TK(TAIR(I))**4)
     END DO
-    
+
     RETURN
 END SUBROUTINE THERMAL
 

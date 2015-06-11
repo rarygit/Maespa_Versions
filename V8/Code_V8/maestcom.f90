@@ -5,15 +5,16 @@ MODULE maestcom
     CHARACTER(LEN=3), PARAMETER :: format_binary = 'bin'
     
     ! Maximum dimensions of arrays
-    INTEGER, PARAMETER :: MAXT = 4500        ! Maximum no. of trees in plot
+    INTEGER, PARAMETER :: MAXT = 5000        ! Maximum no. of trees in plot
     INTEGER, PARAMETER :: MAXLAY = 15         ! Maximum no. of layers for radiation
-    INTEGER, PARAMETER :: MAXSOILLAY = 50    ! Maximum no. of layers of soil (RAD)
+    INTEGER, PARAMETER :: MAXSOILLAY = 51    ! Maximum no. of layers of soil (RAD)
     INTEGER, PARAMETER :: MAXSP = 4         ! Maximum no. of species (RAD).
-    INTEGER, PARAMETER :: MAXP = 4500        ! Maximum no. of gridpoints -- MUST BE EQUAL TO OR LARGER THAN MAXT !!!!
-    INTEGER, PARAMETER :: MAXC = 3            ! Maximum no. of leaf area distributions
-    INTEGER, PARAMETER :: MAXANG = 20          ! Maximum no. of zenith & leaf angles
+    INTEGER, PARAMETER :: MAXP = 5000        ! Maximum no. of gridpoints -- MUST BE EQUAL TO OR LARGER THAN MAXT !!!!
+    INTEGER, PARAMETER :: MAXC = 3!2            ! Maximum no. of leaf area distributions
+    INTEGER, PARAMETER :: MAXANG = 20!11          ! Maximum no. of zenith & leaf angles
     INTEGER, PARAMETER :: MAXD = 13           ! For resp prog
-    INTEGER, PARAMETER :: MAXDATE = 45      ! Maximum no. of dates for tree or physiol parameters
+    INTEGER, PARAMETER :: MAXDATE = 45!30      ! Maximum no. of dates for tree or physiol parameters
+    INTEGER, PARAMETER :: MAXECHLAYER = 1000   ! Maximum number of elementary layers in equiv. horizontal canopy (EHC,ASSIGN,CHART)
     !INTEGER, PARAMETER :: maxdate = 5        ! Maximum no. of dates for physiol parameters
     !INTEGER, PARAMETER :: MAXMET = 18         ! Maximum columns in met data file
     ! changed by mgdk, just to try and compile, not 18 but MHET has 20?!!
@@ -21,7 +22,7 @@ MODULE maestcom
     INTEGER, PARAMETER :: MAXHISTO = 200      ! Maximum bins in PAR histogram
     REAL, PARAMETER    :: TOL = 0.02          ! Tolerance for leaf temp iteration
     INTEGER, PARAMETER :: MAXDAY =   900      ! For sumtrees program
-    INTEGER, PARAMETER :: MAXHRS = 48         ! Maximum number of time periods in a day (ie 15 mins)
+    INTEGER, PARAMETER :: MAXHRS = 96 !24*60      ! Maximum number of time periods in a day (ie 15 mins)
     INTEGER, PARAMETER :: MAXSTP = 10000      ! For ODEINT (Utils.for)
     INTEGER, PARAMETER :: NMAX = 4            ! "
     INTEGER, PARAMETER :: KMAXX = 200         ! "
@@ -47,7 +48,6 @@ MODULE maestcom
     REAL, PARAMETER :: TCQUARTZ = 7.7      ! thermal conductivity of quartz (W m-1 K-1)
     REAL, PARAMETER :: TCH2O = 0.594       ! thermal conductivity of water (W m-1 K-1)
     REAL, PARAMETER :: TCORG = 0.25        ! thermal conductivity of organic matter (W m-1 K-1)
-    REAL, PARAMETER :: SOILALBEDO = 0.15   ! Albedo of soil, without snow.
     REAL, PARAMETER :: DHEAT = 21.5e-6     ! molecular diffusivity for heat
     REAL, PARAMETER :: EMLEAF = 0.95       ! Emissivity of thermal radiation by leaf
     REAL, PARAMETER :: EMSOIL = 0.95       ! Emissivity of thermal radiation by soil
@@ -113,8 +113,8 @@ MODULE maestcom
     INTEGER, PARAMETER :: UWATUPTHDR = 46
     INTEGER, PARAMETER :: UWATDAYHDR = 47
     INTEGER, PARAMETER :: URESPHDR = 48
-    INTEGER, PARAMETER :: USUNLA = 49    ! modification Mathias 27/11/12
-    INTEGER, PARAMETER :: USWPLAY = 50    ! modification Mathias décembre 2012
+    INTEGER, PARAMETER :: USUNLA = 49    
+    INTEGER, PARAMETER :: USWPLAY = 50    
     
     
 
@@ -133,7 +133,6 @@ MODULE maestcom
     ! Flags to indicate which program it is
     INTEGER, PARAMETER :: INORMAL = 0         ! Maestra, Maeshr
     INTEGER, PARAMETER :: ITEST = 1           ! Maestest
-
 	  
     !COMMON /HRS/ HHRS, KHRS, SPERHR ! Make KHRS and HHRS available throughout the program
 !    INTEGER, PARAMETER :: KHRS = 24                  ! Number of time intervals in a day
