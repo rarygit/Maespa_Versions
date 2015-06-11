@@ -332,8 +332,8 @@ MODULE MAINDECLARATIONS
     
     !New gs model where two conductance are calculated
     INTEGER NEWTUZET
-    REAL G02, G02TABLE(maxdate), G02TABLESPEC(maxdate,maxsp)
-    REAL G12, G12TABLE(maxdate), G12TABLESPEC(maxdate,maxsp)
+    REAL G02, G02TABLEI(maxdate), G02TABLESPEC(maxdate,maxsp)
+    REAL G12, G12TABLEI(maxdate), G12TABLESPEC(maxdate,maxsp)
     
     ! for water table and capilarity rising
     INTEGER ISIMWATTAB, IWATTABLAYER
