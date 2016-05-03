@@ -1,0 +1,21 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue May 03 14:08:22 2016
+        MODULE OPEN_OUTPUT_FILES__genmod
+          INTERFACE 
+            SUBROUTINE OPEN_OUTPUT_FILES(ISIMUS,CTITLE,TTITLE,PTITLE,   &
+     &STITLE,MTITLE,VTITLE,WTITLE,NSPECIES,SPECIESNAMES,OUT_PATH,       &
+     &ISMAESPA)
+              INTEGER(KIND=4) :: ISIMUS
+              CHARACTER(*) :: CTITLE
+              CHARACTER(*) :: TTITLE
+              CHARACTER(*) :: PTITLE
+              CHARACTER(*) :: STITLE
+              CHARACTER(*) :: MTITLE
+              CHARACTER(*) :: VTITLE
+              CHARACTER(*) :: WTITLE
+              INTEGER(KIND=4) :: NSPECIES
+              CHARACTER(LEN=30) :: SPECIESNAMES(4)
+              CHARACTER(*) :: OUT_PATH
+              LOGICAL(KIND=4) :: ISMAESPA
+            END SUBROUTINE OPEN_OUTPUT_FILES
+          END INTERFACE 
+        END MODULE OPEN_OUTPUT_FILES__genmod

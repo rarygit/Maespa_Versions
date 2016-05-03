@@ -26,5 +26,18 @@
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
-		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl"/></Files>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\default_conditions.f90"/>
+		<File RelativePath="..\getmet.f90"/>
+		<File RelativePath="..\inout.f90"/>
+		<File RelativePath="..\maespa.f90"/>
+		<File RelativePath="..\maestcom.f90"/>
+		<File RelativePath="..\maindeclarations.f90"/>
+		<File RelativePath="..\metcom.f90"/>
+		<File RelativePath="..\physiol.f90"/>
+		<File RelativePath="..\radn.f90"/>
+		<File RelativePath="..\switches.f90"/>
+		<File RelativePath="..\unstor.f90"/>
+		<File RelativePath="..\utils.f90"/>
+		<File RelativePath="..\watbal.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

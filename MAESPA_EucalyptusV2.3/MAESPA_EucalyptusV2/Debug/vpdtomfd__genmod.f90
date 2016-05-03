@@ -1,0 +1,10 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue May 03 14:08:23 2016
+        MODULE VPDTOMFD__genmod
+          INTERFACE 
+            SUBROUTINE VPDTOMFD(VPD,PRESS,VMFD)
+              REAL(KIND=4) :: VPD(96)
+              REAL(KIND=4) :: PRESS(96)
+              REAL(KIND=4) :: VMFD(96)
+            END SUBROUTINE VPDTOMFD
+          END INTERFACE 
+        END MODULE VPDTOMFD__genmod

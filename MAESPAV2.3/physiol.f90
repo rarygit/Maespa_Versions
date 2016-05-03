@@ -186,7 +186,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     GRADN = GRADIATION(TAIR,RDFIPT,TUIPT,TDIPT)
     ! Boundary layer conductance for heat - single sided, forced convection
     GBHU = GBHFORCED(TAIR,PRESS,WIND,WLEAF)
-    
+
     !**********************************************************************
     ITER = 0  ! Counter for iterations - finding leaf temperature
 100 CONTINUE  ! Return point for iterations
@@ -229,6 +229,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     GBHF = GBHFREE(TAIR,TLEAF,PRESS,WLEAF)
     ! Total boundary layer conductance for heat
     GBH = GBHU + GBHF
+
     ! Total conductance for heat - two-sided
     GH = 2.*(GBH + GRADN)
     ! Total conductance for water vapour
@@ -252,7 +253,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
         CS = CA - ALEAF/GBC
     ENDIF
     TDIFF = (RNET - ET*LHV) / (CPAIR * AIRMA * GH)
-    TLEAF1 = TAIR + TDIFF/4 ! divide by 4 to slow down convergence and avoid big changes
+    TLEAF1 = TAIR + TDIFF/4 !divide by 4 to slow down convergence and avoid big changes
     
     ! Now recalculate boundary layer conductance, ET with new TLEAF
     ! Helps convergence to TLEAF.
@@ -271,7 +272,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
 
     !  Call Penman-Monteith equation
     ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
-
+!IF (IHOUR.eq.24)     print*,'VPD',VPD, 'ET',ET,'GHV',GH,GV
     DLEAF = ET * PRESS / GV
     RHLEAF = 1. - DLEAF/SATUR(TLEAF1)
     VMLEAF = DLEAF/PRESS*1E-3
@@ -818,8 +819,9 @@ REAL FUNCTION ETCAN(WIND,ZHT,Z0HT,ZPD,PRESS,TAIR,RNET,VPD,GSCAN,STOCKING,TREEH,T
     REAL, EXTERNAL :: TK
 
     ! Get boundary layer conductance, GBCANMS give conductance in m s-1
-!    GB = GBCAN(WIND,ZHT,Z0HT,ZPD,PRESS,TAIR)
-    CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH,TOTLAI,GBCANMS1,GBCANMS2)
+    !GB = GBCAN(WIND,ZHT,Z0HT,ZPD,PRESS,TAIR)
+
+        CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH,TOTLAI,GBCANMS1,GBCANMS2)
     CMOLAR = PRESS / (RCONST * TK(TAIR))
     GB = GBCANMS1*CMOLAR    ! in mol m-2 s-1
         

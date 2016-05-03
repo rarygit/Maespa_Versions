@@ -1,0 +1,14 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue May 03 14:08:23 2016
+        MODULE READENVIRON__genmod
+          INTERFACE 
+            SUBROUTINE READENVIRON(UFILE,CAK,PRESSK,DIFSKYI,SWMINI,     &
+     &SWMAXI)
+              INTEGER(KIND=4) :: UFILE
+              REAL(KIND=4) :: CAK
+              REAL(KIND=4) :: PRESSK
+              REAL(KIND=4) :: DIFSKYI
+              REAL(KIND=4) :: SWMINI
+              REAL(KIND=4) :: SWMAXI
+            END SUBROUTINE READENVIRON
+          END INTERFACE 
+        END MODULE READENVIRON__genmod

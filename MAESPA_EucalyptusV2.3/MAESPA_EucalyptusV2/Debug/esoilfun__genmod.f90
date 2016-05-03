@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue May 03 14:08:24 2016
+        MODULE ESOILFUN__genmod
+          INTERFACE 
+            FUNCTION ESOILFUN(SOILTK)
+              REAL(KIND=4) :: SOILTK
+              REAL(KIND=4) :: ESOILFUN
+            END FUNCTION ESOILFUN
+          END INTERFACE 
+        END MODULE ESOILFUN__genmod

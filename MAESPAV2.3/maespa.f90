@@ -235,7 +235,7 @@ PROGRAM maespa
         
         ! Added 29-3-2008 (RAD): reposition met file correctly,
         ! to account for the looping order change.
-        CALL RESTARTMETF(IDAY+ISTART,MSTART,MFLAG)
+        !CALL RESTARTMETF(IDAY+ISTART,MSTART,MFLAG) !glm commented from Remko email
        
         ! Prepare histogram
         CALL ZEROSTART(HISTO,CANOPYDIMS)
@@ -627,6 +627,13 @@ PROGRAM maespa
             
         ENDIF  ! IDAY=0 or IOTUTDth day.
         
+
+
+        
+        
+        
+        
+        
         !**********************************************************************!
         !                       Begin hourly loop                              !
         !**********************************************************************!
@@ -635,6 +642,8 @@ PROGRAM maespa
             ITERTAIR = 0.
             TAIRABOVE = TAIR(IHOUR)
             VPDABOVE = VPD(IHOUR)
+            PREVTAIRCAN = TAIR(IHOUR) !glm
+            PREVVPDCAN = VPD(IHOUR) !glm
 
 1111        CONTINUE
 
@@ -904,9 +913,12 @@ PROGRAM maespa
                     ! Soil surface T for SCATTER routine:
                     IF(SIMTSOIL.EQ.0)THEN  ! No Tsoil simulated.
                         PREVTSOIL = TK(TSOIL(IHOUR))
+                        TSOILSURFACE = TK(TSOIL(IHOUR))
                     ELSE
                         IF (ITERTAIR.EQ.1) THEN    !    Christina
-                        PREVTSOIL = SOILTEMP(1)
+                            PREVTSOIL = SOILTEMP(1)
+                            TSOILSURFACE = SOILTEMP(1)
+                            SOILTK = SOILTEMP(1)
                         ELSE
                             PREVTSOIL = TSOILSURFACE
                         ENDIF
@@ -915,7 +927,7 @@ PROGRAM maespa
                     WEIGHTEDSWP = 0
                 ENDIF
                 
-                
+
                 ! Test to see if daylight hours or if any foliage
                 IF ((ABS(ZEN(IHOUR)) <  PI/2.0 ) .AND. (RADABV(IHOUR,1) > 1.0) .AND. (FOLT(1) > 0.0)) THEN
                     
@@ -1122,7 +1134,7 @@ PROGRAM maespa
                             
                             ! Calculate the scattered radiation
                             CALL SCATTER(IPT,ITAR,IWAVE,MLAYER(IPT),LAYER(IPT),DLAI,EXPDIF,ZEN(IHOUR),BEXT,DMULT2,SOMULT,BMULT,&
-                                            RADABV(IHOUR,IWAVE),FBEAM(IHOUR,IWAVE),TAIR(IHOUR),PREVTSOIL,ARHO(LGP(IPT),IWAVE),&
+                                            RADABV(IHOUR,IWAVE),FBEAM(IHOUR,IWAVE),TAIR(IHOUR),TSOILSURFACE,ARHO(LGP(IPT),IWAVE),& !glm PREVTSOIL
                                             ATAU(LGP(IPT),IWAVE),RHOSOL(IWAVE),DIFUP,DIFDN,SCLOST,DOWNTH,TCAN2,TLEAFTABLE,&
                                             EMSKY(IHOUR),NUMPNT,TOTLAI,FOLLAY,FOLT(1),LGP)
 
@@ -1372,7 +1384,7 @@ PROGRAM maespa
                         ! Calculate the scattered radiation, for thermal only.
                         CALL SCATTER(IPT,ITAR,3,MLAYER(IPT),LAYER(IPT),DLAI,EXPDIF,ZEN(IHOUR),BEXT,DMULT2,  &
                                         SOMULT,BMULT,RADABV(IHOUR,3),                                       &
-                                        FBEAM(IHOUR,3),TAIR(IHOUR),PREVTSOIL, ARHO(LGP(IPT),3),             &
+                                        FBEAM(IHOUR,3),TAIR(IHOUR),TSOILSURFACE, ARHO(LGP(IPT),3),             & !PREVTSOIL
                                         ATAU(LGP(IPT),3),RHOSOL(3),DIFUP,                                   &
                                         DIFDN,SCLOST,DOWNTH,TCAN2,TLEAFTABLE,                               &
                                         EMSKY(IHOUR),NUMPNT,TOTLAI,FOLLAY,FOLT(1),LGP)
@@ -1493,7 +1505,9 @@ PROGRAM maespa
                                 SCLOSTTREE,THRAB,RADABV,FH2O,PLOTAREA,  &
                                 DOWNTHTREE,RGLOBABV,RGLOBUND,RADINTERC,FRACAPAR,ISIMUS,FH2OUS(IHOUR),THRABUS(IHOUR),   &
                                 PARUSMEAN(IHOUR),SCLOSTTOT,GSCAN,WINDAH(IHOUR),ZHT,Z0HT,ZPD,PRESS(IHOUR),TAIR(IHOUR), &
-                                VPD(IHOUR),ETMM,ETUSMM,ETMMSPEC,TREEH,RGLOBUND1,RGLOBUND2,DOWNTHAV,SCLOSTTOT3)            
+                                VPD(IHOUR),ETMM,ETUSMM,ETMMSPEC,TREEH,RGLOBUND1,RGLOBUND2,DOWNTHAV,SCLOSTTOT3, &
+                                PREVTSOIL,RHOSOL)      
+                !pause
 
                 ! Find soil surface temperature, unless this is input data.
                 ! Note this uses DRYTHICK from previous timestep (or initial value in first go).
@@ -1501,7 +1515,7 @@ PROGRAM maespa
                     VIEWFACTOR = 1.0  ! OBSOLETE...
                     CALL FINDSOILTK(iday, TAIR(IHOUR) + FREEZE, GAMSOIL, PRESS(IHOUR),SOILTK, SOILTEMP(2), VPD(IHOUR)/1000, &
                                     RGLOBUND,THERMCOND(1), LAYTHICK(1),LAYTHICK(2), POREFRAC(1),SOILWP(1),DRYTHICK,TORTPAR,&
-                                    VIEWFACTOR,RHOSOLSPEC,RGLOBUND1,RGLOBUND2,DOWNTHAV,DRYTHERM)
+                                    VIEWFACTOR,RHOSOLSPEC,RGLOBUND1,RGLOBUND2,DOWNTHAV,DRYTHERM) !glm: SOILTK is output
                 ELSE
                     SOILTK = TSOIL(IHOUR) + FREEZE
                 ENDIF
@@ -1513,7 +1527,7 @@ PROGRAM maespa
                                     LAYTHICK(1),LAYTHICK(2),POREFRAC(1),SOILWP(1),DRYTHICK,TORTPAR,VIEWFACTOR,          &
                                     QH,QE,QN,QC,ESOIL,TSOILSURFACE,&
                                     RHOSOLSPEC(1,1),RHOSOLSPEC(2,1),RHOSOLSPEC(3,1), &
-                                    RGLOBUND1,RGLOBUND2,DOWNTHAV,DRYTHERM)
+                                    RGLOBUND1,RGLOBUND2,DOWNTHAV,DRYTHERM) !TSOILSURFACE is here the output (and Qx)
                 !ENDIF
                 
                 ! Or, do not calculate heat balance. Either if using measured ET for water balance,
@@ -1525,7 +1539,8 @@ PROGRAM maespa
                     QN = 0
                     QC = 0
                 ENDIF
-                            
+
+                
                 ! Get the evaporation from the wet canopy
                 !CALL CANOPY_BALANCE(PPT(IHOUR),WINDAH(IHOUR),ZHT,Z0HT,ZPD, &
                 !            PRESS(IHOUR),TAIR(IHOUR),RADINTERC, &
@@ -1546,7 +1561,13 @@ PROGRAM maespa
                                             WINDAH(IHOUR), ZPD, ZHT, Z0HT, DELTA, PRESS(IHOUR),QC,TREEH,TOTLAI,GCANOP, &
                                             EVAPSTORE,HTOT)
                     
-                    IF ((ABS(TAIRNEW - TAIR(IHOUR)).LT.TOL)) THEN
+                   !print*,PREVVPDCAN,VPDNEW
+
+                    
+                    IF ((ABS(TAIRNEW - TAIR(IHOUR)).LT.TOL) &
+                        .AND. (ABS(PREVTSOIL - TSOILSURFACE).LT.TOL) &
+                        .AND. (ABS(VPDNEW - PREVVPDCAN).LT.(50*TOL))) THEN
+                        
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'convergence', ITERTAIR
                         ITERTAIR = ITERTAIRMAX - 1
                         PREVTAIRCAN = TAIRNEW
@@ -1554,10 +1575,14 @@ PROGRAM maespa
                         GOTO 1112                 
                     ELSE IF ((ITERTAIR.EQ.ITERTAIRMAX)) THEN    
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'no convergence'
-                        PREVTAIRCAN = PREVTAIRCAN
-                        PREVVPDCAN = PREVVPDCAN
+                        !PREVTAIRCAN = PREVTAIRCAN
+                        !PREVVPDCAN = PREVVPDCAN
+                        PREVTAIRCAN = TAIRNEW ! glm
+                        PREVVPDCAN = VPDNEW ! glm
                         GOTO 1112
                     ELSE
+                        PREVTAIRCAN = TAIRNEW ! glm
+                        PREVVPDCAN = VPDNEW ! glm                      
                         GOTO 1111
                     END IF
                 ENDIF

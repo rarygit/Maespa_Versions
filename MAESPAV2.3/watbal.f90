@@ -367,7 +367,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
 !       Calculates the thickness of the top dry layer (if any).
         CALL WETTINGLAYERS(POREFRAC,WETTINGBOT,WETTINGTOP, &
-                               SURFACE_WATERMM,SNOW,SOILTK,QE, & ! replace TAIRK by SOILTK
+                               SURFACE_WATERMM,SNOW,SOILTK,QE, & !replace TAIRK by SOILTK
                                NLAYER,LAYTHICK,DRYTHICKMIN,DRYTHICK)
 
 !       Option to keep soil wet, also keep DRYTHICK = 0
@@ -778,8 +778,10 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ! Uses reflectance as input to phy.dat.
       ! Emission from the soil using the temperature above the dry thick layer
       ESOIL = ESOILFUN(TSOILSURFACE)
-      QN = DOWNTHAV*(1-RHOSOLSPEC3) + (1-RHOSOLSPEC1)*RGLOBUND1 + (1-RHOSOLSPEC2)*RGLOBUND2 - ESOIL !positive incoming
-    
+      !print*,'TSOILSURFACE',TSOILSURFACE
+      !QN = DOWNTHAV*(1-RHOSOLSPEC3) + (1-RHOSOLSPEC1)*RGLOBUND1 + (1-RHOSOLSPEC2)*RGLOBUND2 - ESOIL 
+      QN = DOWNTHAV*(1-RHOSOLSPEC3) + RGLOBUND1 + RGLOBUND2 - ESOIL !glm: reflectance was already accounted for in RGOBUND1 and 2 through SCLOSTTOT and rflected and after intercepted so within RADINTERC (hard to find...)
+
       RETURN
       END
 
@@ -1222,7 +1224,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         DXSAV   = (X2-X1)/20.0
         
         IF (THROUGHFALL .LT. 0.) THEN
-            THROUGHFALL= 1-MIN(MAX(TOTLAI/4. , 0.),1.)
+            THROUGHFALL= 1-MIN(MAX(TOTLAI/2.5 , 0.),1.)
         ENDIF
 
         EXTRAPARS(1)  = THROUGHFALL
@@ -2115,7 +2117,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                          SCLOSTTOT,GSCAN,WIND,ZHT,Z0HT,ZPD, &
                          PRESS,TAIR,VPD,ETMM,ETUSMM,ETMMSPEC,TREEH, &
                          RGLOBUND1,&
-                         RGLOBUND2,DOWNTHAV,SCLOSTTOT3)
+                         RGLOBUND2,DOWNTHAV,SCLOSTTOT3, &
+                         TSOIL,RHOSOL)
                       
 ! Scale up individual tree transpiration and radiation interception to
 ! a per m2 basis for use in water/heat balance calculations.
@@ -2141,6 +2144,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
     REAL ETMM,  WIND, ZHT,Z0HT,ZPD,PRESS,TAIR,VPD,ETCAN
     REAL ETUSMM,FH2OUS,WTOT,TREEH, ETMMSPEC(MAXSP)
     REAL RGLOBUND1,RGLOBUND2,DOWNTHAV
+    REAL TSOIL,RHOSOL(3) !glm ajout pour thermup
     
 
 ! conversion to kg m-2 t-1
@@ -2217,7 +2221,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                       RADINTERC1,RADINTERC2,RADINTERC3, &
                       SCLOSTTOT,FRACAPAR,RADINTERC,  &
                       RGLOBUND1,&
-                      RGLOBUND2,DOWNTHAV,SCLOSTTOT3)
+                      RGLOBUND2,DOWNTHAV,SCLOSTTOT3, &
+                      TOTLAI,TSOIL,RHOSOL)
       
 ! Option 1 : do water balance only based on the target trees (no scaling to stand).
       IF(USESTAND.EQ.0) THEN
@@ -2450,7 +2455,7 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       ! total latent heat flux in the system en W m-2  (QE J m-2 s-1, ETMM en kg m-2 t-1, EVAPSTORE mm t-1)
       !ETOT = -QE + (ETMM + EVAPSTORE) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV 
       ETOT = QE + (ETMM + EVAPSTORE) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV  ! glm change direction
-      ! print*,'ETOT',ETOT,QE,ETMM,EVAPSTORE
+     ! print*,'ETOT',ETOT,QE,ETMM,EVAPSTORE
       
       ! Convert from m s-1 to mol m-2 s-1
       CMOLAR = PRESS / (RCONST * TK(TAIRABOVE))
@@ -2461,12 +2466,13 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       ! aerodynamic conductance air within canopy - air above canopy from Choudhury 1988
       CALL GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
       GCANOP = GBCANMS1 * CMOLAR
-
+      
       ! calculation of air temperature within the canopy (Note that Qc <0)
       !HTOT=RNETTOT - ETOT + QC !W m-2
       HTOT=RNETTOT - ETOT - QC !W m-2 glm better keep QC positive when downward (outgoing)
       TAIRNEW = TAIRABOVE +  (HTOT / (CPAIR * AIRMA * GCANOP))/10 ! glm /20 to slow down convergence
-      ! print*,'TAIRNEW',TAIRNEW, HTOT, RNETTOT, ETOT, QC
+      
+     ! print*,'TAIRNEW',TAIRNEW, HTOT, RNETTOT, ETOT, QC
 
       ! air vapor pressure
       VPAIR = SATUR(TAIRABOVE) - VPDABOVE
@@ -2478,16 +2484,17 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       VPAIRCANOP = VPAIR + (ETOT / (CPAIR * AIRMA * GCANOP/GAMMA))/10 !glm div by 10 to slow down  
 
       VPDNEW = SATUR(TAIRNEW) - VPAIRCANOP
-
-      ! limit condition      
+      
+      !VPDNEW=VPDABOVE !test
+      ! limit condition      glm: without these, unresolved problems occurs at the beginning and end of day
       IF ((TAIRNEW-TAIRABOVE).GT.10)  TAIRNEW = TAIRABOVE + 10
       IF ((TAIRABOVE-TAIRNEW).GT.10)  TAIRNEW = TAIRABOVE - 10
 
       ! Avoid very low VPD or over-saturation.
       IF (VPDNEW.LT.1) VPDNEW = 1
       IF (VPDNEW.GT.SATUR(TAIRNEW)) VPDNEW=SATUR(TAIRNEW) -1
-      ! print*, 'VPDNEW',VPDNEW,VPDABOVE, TAIRNEW, TAIRABOVE
-
+      !print*, 'VPDNEW',VPDNEW,VPDABOVE, TAIRNEW, TAIRABOVE
+      
       ! Updated relative humidity
       RHNEW = 1.0 - VPDNEW/SATUR(TAIRNEW) 
       

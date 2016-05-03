@@ -1,0 +1,28 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue May 03 14:08:21 2016
+        MODULE INTERPUS__genmod
+          INTERFACE 
+            SUBROUTINE INTERPUS(IDAY,ISTART,NUMPNT,FNMIN,EXTK,GRDAREAI, &
+     &DATESFU,NOFUDATES,USLAITAB,USLAI,DATESHU,NOHUDATES,HTUS,ZLU,      &
+     &DATESNU,NONUDATES,FOLNUS,FN0US,AREAUS)
+              INTEGER(KIND=4) :: IDAY
+              INTEGER(KIND=4) :: ISTART
+              INTEGER(KIND=4) :: NUMPNT
+              REAL(KIND=4) :: FNMIN
+              REAL(KIND=4) :: EXTK
+              REAL(KIND=4) :: GRDAREAI
+              INTEGER(KIND=4) :: DATESFU(1000)
+              INTEGER(KIND=4) :: NOFUDATES
+              REAL(KIND=4) :: USLAITAB(1000,5000)
+              REAL(KIND=4) :: USLAI(5000)
+              INTEGER(KIND=4) :: DATESHU(1000)
+              INTEGER(KIND=4) :: NOHUDATES
+              REAL(KIND=4) :: HTUS(1000,5000)
+              REAL(KIND=4) :: ZLU(5000)
+              INTEGER(KIND=4) :: DATESNU(1000)
+              INTEGER(KIND=4) :: NONUDATES
+              REAL(KIND=4) :: FOLNUS(1000,5000)
+              REAL(KIND=4) :: FN0US(5000)
+              REAL(KIND=4) :: AREAUS(5000)
+            END SUBROUTINE INTERPUS
+          END INTERFACE 
+        END MODULE INTERPUS__genmod

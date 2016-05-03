@@ -1,0 +1,59 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue May 03 14:08:23 2016
+        MODULE INTERPOLATEP__genmod
+          INTERFACE 
+            SUBROUTINE INTERPOLATEP(IDAY,ISTART,NOJDATES,DATESJ,        &
+     &JMAXTABLE,NOVDATES,DATESV,VCMAXTABLE,NORDATES,DATESRD,RDTABLE,    &
+     &NOSLADATES,DATESSLA,SLATABLE,NOADATES,DATESA,AJQTABLE,NOFQDATES,  &
+     &DATESFQ,Q10FTABLE,NOWQDATES,DATESWQ,Q10WTABLE,NOLAY,NOAGEP,JMAX25,&
+     &VCMAX25,RD0,SLA,AJQ,Q10F,Q10W,NOGSDATES,DATESGS,G0TABLE,G1TABLE,G0&
+     &,G1,NOWLEAFDATES,DATESWLEAF,WLEAFTABLE,WLEAF,G02TABLE,G12TABLE,G02&
+     &,G12)
+              INTEGER(KIND=4) :: IDAY
+              INTEGER(KIND=4) :: ISTART
+              INTEGER(KIND=4) :: NOJDATES
+              INTEGER(KIND=4) :: DATESJ(1000)
+              REAL(KIND=4) :: JMAXTABLE(1000,15,3)
+              INTEGER(KIND=4) :: NOVDATES
+              INTEGER(KIND=4) :: DATESV(1000)
+              REAL(KIND=4) :: VCMAXTABLE(1000,15,3)
+              INTEGER(KIND=4) :: NORDATES
+              INTEGER(KIND=4) :: DATESRD(1000)
+              REAL(KIND=4) :: RDTABLE(1000,15,3)
+              INTEGER(KIND=4) :: NOSLADATES
+              INTEGER(KIND=4) :: DATESSLA(1000)
+              REAL(KIND=4) :: SLATABLE(1000,15,3)
+              INTEGER(KIND=4) :: NOADATES
+              INTEGER(KIND=4) :: DATESA(1000)
+              REAL(KIND=4) :: AJQTABLE(1000,15,3)
+              INTEGER(KIND=4) :: NOFQDATES
+              INTEGER(KIND=4) :: DATESFQ(1000)
+              REAL(KIND=4) :: Q10FTABLE(1000)
+              INTEGER(KIND=4) :: NOWQDATES
+              INTEGER(KIND=4) :: DATESWQ(1000)
+              REAL(KIND=4) :: Q10WTABLE(1000)
+              INTEGER(KIND=4) :: NOLAY
+              INTEGER(KIND=4) :: NOAGEP
+              REAL(KIND=4) :: JMAX25(15,3)
+              REAL(KIND=4) :: VCMAX25(15,3)
+              REAL(KIND=4) :: RD0(15,3)
+              REAL(KIND=4) :: SLA(15,3)
+              REAL(KIND=4) :: AJQ(15,3)
+              REAL(KIND=4) :: Q10F
+              REAL(KIND=4) :: Q10W
+              INTEGER(KIND=4) :: NOGSDATES
+              INTEGER(KIND=4) :: DATESGS(1000)
+              REAL(KIND=4) :: G0TABLE(1000)
+              REAL(KIND=4) :: G1TABLE(1000)
+              REAL(KIND=4) :: G0
+              REAL(KIND=4) :: G1
+              INTEGER(KIND=4) :: NOWLEAFDATES
+              INTEGER(KIND=4) :: DATESWLEAF(1000)
+              REAL(KIND=4) :: WLEAFTABLE(1000)
+              REAL(KIND=4) :: WLEAF
+              REAL(KIND=4) :: G02TABLE(1000)
+              REAL(KIND=4) :: G12TABLE(1000)
+              REAL(KIND=4) :: G02
+              REAL(KIND=4) :: G12
+            END SUBROUTINE INTERPOLATEP
+          END INTERFACE 
+        END MODULE INTERPOLATEP__genmod

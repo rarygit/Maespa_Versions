@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue May 03 14:08:23 2016
+        MODULE SKIPMET__genmod
+          INTERFACE 
+            SUBROUTINE SKIPMET(MFLAG,NSTEP)
+              INTEGER(KIND=4) :: MFLAG
+              INTEGER(KIND=4) :: NSTEP
+            END SUBROUTINE SKIPMET
+          END INTERFACE 
+        END MODULE SKIPMET__genmod
