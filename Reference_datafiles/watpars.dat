@@ -11,14 +11,12 @@ usemeaset = 0
 usemeassw = 1
 USESTAND = 0
 /
-! RV: changed maxstorage because G Le Maire changed its computation (maxstorage*LAI) now
-! it is proportional to LAI. Before it was fixed.
-! RV: changed throughfall to negative value (proportion of water that fall down to the ground.
+
 &wattfall
 rutterb = 3.7
 rutterd = 0.002
 maxstorage = 0.2
-throughfall = -0.7
+throughfall = 0.2
 /
 
 &watinfilt
