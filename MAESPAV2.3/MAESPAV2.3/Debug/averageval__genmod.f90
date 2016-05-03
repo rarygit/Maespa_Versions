@@ -1,0 +1,10 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Apr 28 16:12:43 2016
+        MODULE AVERAGEVAL__genmod
+          INTERFACE 
+            FUNCTION AVERAGEVAL(ARR,NUMVAL)
+              REAL(KIND=4) :: ARR(5000)
+              INTEGER(KIND=4) :: NUMVAL
+              REAL(KIND=4) :: AVERAGEVAL
+            END FUNCTION AVERAGEVAL
+          END INTERFACE 
+        END MODULE AVERAGEVAL__genmod

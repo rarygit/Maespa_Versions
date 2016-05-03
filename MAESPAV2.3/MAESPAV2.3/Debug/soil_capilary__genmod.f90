@@ -1,0 +1,26 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Apr 28 18:03:55 2016
+        MODULE SOIL_CAPILARY__genmod
+          INTERFACE 
+            SUBROUTINE SOIL_CAPILARY(J,POREFRAC,FRACWATER,LAYTHICK,     &
+     &SOILWP,KSAT,BPAR,WS,WR,NRET,PSIE,ALPHARET,RETFUNCTION,IWATTABLAYER&
+     &,WATERGAINCAPIL,WATERGAIN,WATERLOSS)
+              INTEGER(KIND=4) :: J
+              REAL(KIND=4) :: POREFRAC(51)
+              REAL(KIND=4) :: FRACWATER(51)
+              REAL(KIND=4) :: LAYTHICK(51)
+              REAL(KIND=4) :: SOILWP(51)
+              REAL(KIND=4) :: KSAT(51)
+              REAL(KIND=4) :: BPAR(51)
+              REAL(KIND=4) :: WS(51)
+              REAL(KIND=4) :: WR(51)
+              REAL(KIND=4) :: NRET(51)
+              REAL(KIND=4) :: PSIE(51)
+              REAL(KIND=4) :: ALPHARET(51)
+              INTEGER(KIND=4) :: RETFUNCTION
+              INTEGER(KIND=4) :: IWATTABLAYER
+              REAL(KIND=4) :: WATERGAINCAPIL(51)
+              REAL(KIND=4) :: WATERGAIN(51)
+              REAL(KIND=4) :: WATERLOSS(51)
+            END SUBROUTINE SOIL_CAPILARY
+          END INTERFACE 
+        END MODULE SOIL_CAPILARY__genmod

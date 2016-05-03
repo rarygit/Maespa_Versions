@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Apr 28 16:12:43 2016
+        MODULE JDATE__genmod
+          INTERFACE 
+            FUNCTION JDATE(IDATE50)
+              INTEGER(KIND=4) :: IDATE50
+              INTEGER(KIND=4) :: JDATE
+            END FUNCTION JDATE
+          END INTERFACE 
+        END MODULE JDATE__genmod

@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Apr 28 16:12:47 2016
+        MODULE CALCELP__genmod
+          INTERFACE 
+            FUNCTION CALCELP(AVGANG)
+              REAL(KIND=4) :: AVGANG
+              REAL(KIND=4) :: CALCELP
+            END FUNCTION CALCELP
+          END INTERFACE 
+        END MODULE CALCELP__genmod
