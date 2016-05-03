@@ -1,0 +1,74 @@
+Aquiares
+
+&plot
+x0 = 0
+y0 = 0
+xmax = 84
+ymax = 84
+watbalarea= 196
+xslope = 22
+yslope=0
+bearing = 90
+notrees = 733
+/
+
+
+Ca. standard aerodynamics for canopy of 3m height; Jones 1992.
+
+&aerodyn
+zht=25
+zpd=1.43
+z0ht=0.27
+/
+
+
+&xy
+xycoords = 
+/
+
+&speclist
+ispecies = 
+
+/
+
+crownradiusinthex-direction.
+&indivradx
+nodates = 1
+values = 
+dates = '09/01/79'
+/
+
+crownradiusinthey-direction.
+&indivrady
+nodates = 1
+values = 
+dates = '09/01/79'
+/
+
+crownheightforeachtree.
+&indivhtcrown
+nodates = 1
+values = 
+dates = '09/01/79'
+/
+
+stemdiameterforeachtree
+&indivdiam
+nodates = 1
+values = 
+dates = '09/01/79'
+/
+
+trunkheight
+&indivhttrunk
+nodates = 1
+values = 
+dates = '09/01/79'
+/
+
+leafarea
+&indivlarea
+nodates = 1
+values =
+dates = '09/01/79'
+/

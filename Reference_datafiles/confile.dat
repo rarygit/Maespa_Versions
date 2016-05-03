@@ -1,0 +1,87 @@
+Aquiares
+
+
+
+&control
+iohrly=1
+iotutd=9
+ioresp=0
+iowatbal=1
+verbose= 2
+/	
+		
+	
+
+dates for simulation start and end (must overlap with met file). 	
+	
+&dates	
+startdate = '09/01/79'
+enddate = '09/01/79'
+/	
+		
+	
+
+indicate which target tree(s) to use. 	
+	
+&treescon	
+	
+notrees = 
+itargets = 
+/	
+		
+	
+
+&species	
+	
+nspecies = 3
+speciesnames = 'Hybrid' 'Cordia' 'Trunk' 
+phyfiles = 'phyCof.dat' 'phyCor.dat' 'phyTru.dat' 
+strfiles = 'strCof.dat' 'strCor.dat' 'strTru.dat' 
+/	
+		
+
+
+number of angles and layers to integrate over. 	
+	
+&diffang	
+	
+nolay = 8	
+	
+pplay = 12
+	
+nzen = 6	
+	
+naz= 8	
+	
+/	
+		
+	
+
+choice of submodels. 	
+	
+&model	
+	
+modelgs = 6	
+	
+modelrd = 0	
+	
+modeljm = 0	
+	
+itermax = 100	
+	
+modelss = 0	
+itertairmax= 20
+	
+/	
+		
+	
+
+climate change scenarios.	
+	
+&ccscenX	
+	
+co2inc = 0	
+	
+tinc = 0	
+	
+/	

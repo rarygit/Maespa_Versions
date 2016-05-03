@@ -1,0 +1,25 @@
+MAESPA met File
+					
+&environ								
+difsky=	0							
+ca = 336.525
+/								
+								
+&latlong								
+lat=	9	56	18					
+long=	83	43	43					
+tzlong=	90							
+lonhem=	'W'							
+lathem=	'N'							
+/								
+								
+&metformat								
+dayorhr= 1							
+khrsperday= 48							
+nocolumns = 9
+startdate = '09/01/79'
+enddate = '09/01/79'
+columns = 'DOY' 'WIND' 'TAIR' 'RH%' 'PAR' 'FBEAM' 'PRESS' 'SWC' 'PPT' 
+/								
+								
+DATA STARTS
