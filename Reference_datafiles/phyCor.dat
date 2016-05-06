@@ -1,4 +1,6 @@
-Cordia physiology file.
+Erythrina physiology file.
+Paramétré comme Fabien avait paramétré le modèle de Medlyn.
+les paramètres inconnus de Tuzet sont tels que ceux des Euca de Mathias pour l'instant.
 
 
 nmber of age classes of foliage (two, but no difference)
@@ -28,9 +30,10 @@ wleafnodates= 1
 Ball-Berry parameters (when MODELGS = 2)
 &bbtuz
 dates = '31/09/10'
-g0 = 0.001
-g1 = 14
-sf = 1.4394
+g0 = 0.005
+g1 = 11.3
+GNIGHT= 0
+sf = 8
 psiv = -2.989
 nsides = 1
 wleaf = 0.2 

@@ -873,7 +873,8 @@ REAL FUNCTION PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
         ET = 0.0
     END IF
     PENMON = ET / LHV
-    !      IF (PENMON.LT.0.0) PENMON = 0.0            ! BM 12/05 Should not be negative
+    
+    IF (PENMON.LT.0.0) PENMON = 0.0            ! BM 12/05 Should not be negative
     
       RETURN
 END FUNCTION PENMON

@@ -2806,7 +2806,7 @@ SUBROUTINE ABSRAD(ITAR,IPT,IWAVE, &
     ENDIF
 
     IF(IWAVE.EQ.3) THEN                 ! Modification Christina June 2014
-        DFLUX(IPT,IWAVE)= DFLUX(IPT,IWAVE)!*ABSRP !- ELEAF*EMLEAF ! emmission from leaf (2 directions)
+        DFLUX(IPT,IWAVE)= DFLUX(IPT,IWAVE) !*ABSRP !- ELEAF*EMLEAF ! emmission from leaf (2 directions)
     ELSE
     DFLUX(IPT,IWAVE)= DFLUX(IPT,IWAVE)*ABSRP
     SCATFX(IPT,IWAVE)= SCATFX(IPT,IWAVE)*ABSRP

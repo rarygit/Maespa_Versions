@@ -1,5 +1,8 @@
-Trunk physiology
+Trunk physiology file.
 
+number of age classes of foliage (two, but no difference)
+Paramétré comme Fabien avait paramétré le modèle de Medlyn.
+les paramètres inconnus de Tuzet sont tels que ceux des Euca de Mathias pour l'instant.
 
 &noages
 
@@ -52,6 +55,7 @@ Ball-Berry parameters (when MODELGS = 2)
 dates = '31/09/10'
 g0 = 0.03
 g1 = 7.3
+GNIGHT= 0
 sf = 1.4394
 psiv = -2.989
 nsides = 2
