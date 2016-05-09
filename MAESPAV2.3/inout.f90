@@ -2757,7 +2757,7 @@ SUBROUTINE READPLOT(UFILE, X0I, Y0I, XMAXI, YMAXI, NOALLTREESI, &
 ! XSLOPE, YSLOPE - slope of plot, in radians
 ! SHADEHT - height of shadecloth surrounding plot, if any
 ! STOCKING - no of stems per ha
-! WATBALAREA - groundarea used in the water balance when USESTAND = 0 (m2)
+! WATBALAREA - groundarea used in the water balance(m2)
 !**********************************************************************
 
     USE maestcom

@@ -2946,7 +2946,6 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
     END DO
 
     FCOVER=MIN(MAX(TOTLAI/3.5,0.),1.) !glm test 
-    
     ! Lost scattered radiation
     ! Take the average across the trees
     SCLOSTTOT_tree = SUM(SCLOSTTREE(1:NOTARGETS,1:2)) / NOTARGETS
