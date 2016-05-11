@@ -1014,7 +1014,7 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     GBCANMSROU = WINDSTAR*VONKARMAN / ((ZW - TREEH)/(ZW - ZPD2)) !glm 03/2016
     
     ! Total aerodynamic conductance between the canopy and the atmosphere
-    GBCANMS1 = 1/ (1/GBCANMSINI + 1/GBCANMSROU)
+    ! GBCANMS1 = 1/ (1/GBCANMSINI + 1/GBCANMSROU)
 
     ! Aerodynamic conductance between the soil surface to the the canopy, 2nd conductance term from choudhury et al. 1988   
     ! based on an exponential decrease of wind speed with height
@@ -1026,8 +1026,12 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     KH = ALPHA1 * VONKARMAN * WINDSTAR * (TREEH - ZPD2) 
 
     ! Aerodynamic conductance soir-air below canopy according to Chourdhury et al., 1988
-    GBCANMS2 = ALPHA * KH / ( TREEH * exp(ALPHA) * (exp(-ALPHA * Z0HT2/TREEH)  -  exp(-ALPHA * (ZPD2+Z0) / TREEH) ) )
+    ! GBCANMS2 = ALPHA * KH / ( TREEH * exp(ALPHA) * (exp(-ALPHA * Z0HT2/TREEH)  -  exp(-ALPHA * (ZPD2+Z0) / TREEH) ) )
 
+    ! test RV !glm
+    GBCANMS1=0.02
+    GBCANMS2=0.01
+    
      ! 2nd alternative to GBCANMS1
       ! Atenuation coefficient, from Lafleur & Roux 1989
 !      COAT = 2.6 * TOTLAI**0.36

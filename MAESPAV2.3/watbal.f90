@@ -382,11 +382,18 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
               RR=2      !it does
         ENDIF
 
+!!       Evaporation
+!        IF(QE.LT.0.)THEN
+!            WATERLOSS(RR) = WATERLOSS(RR) + QEM
+!!       Dew formation (positive values of QE are now actually prevented in QEFLUX, see there).
+!        ELSE
+!            WATERGAIN(1) = WATERGAIN(1) - QEM
+!        ENDIF
 !       Evaporation
-        IF(QE.LT.0.)THEN
+        IF(QE.GT.0.)THEN ! glm change direction
             WATERLOSS(RR) = WATERLOSS(RR) + QEM
-!       Dew formation (positive values of QE are now actually prevented in QEFLUX, see there).
-        ELSE
+
+        ELSE !       Dew formation (positive values of QE are now actually prevented in QEFLUX, see there).
             WATERGAIN(1) = WATERGAIN(1) - QEM
         ENDIF
 
