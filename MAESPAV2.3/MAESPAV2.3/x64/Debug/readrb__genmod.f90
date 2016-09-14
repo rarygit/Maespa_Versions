@@ -1,0 +1,11 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue Sep 06 12:06:54 2016
+        MODULE READRB__genmod
+          INTERFACE 
+            SUBROUTINE READRB(UFILE,RMBI,Q10BI,RTEMPBI)
+              INTEGER(KIND=4) :: UFILE
+              REAL(KIND=4) :: RMBI
+              REAL(KIND=4) :: Q10BI
+              REAL(KIND=4) :: RTEMPBI
+            END SUBROUTINE READRB
+          END INTERFACE 
+        END MODULE READRB__genmod

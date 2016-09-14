@@ -1,0 +1,50 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Sep 08 12:08:43 2016
+        MODULE CALCSOILPARS__genmod
+          INTERFACE 
+            SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,     &
+     &FRACWATER,FRACORGANIC,POREFRAC,SOILCOND,THERMCOND,ROOTMASS,ROOTLEN&
+     &,LAYTHICK,ICEPROP,EQUALUPTAKE,RETFUNCTION,USEMEASSW,SOILDATA,     &
+     &SOILMOISTURE,PSIE,BPAR,KSAT,ROOTRESIST,ROOTRESFRAC,ROOTRAD,       &
+     &MINROOTWP,TOTLAI,WIND,ZHT,Z0HT,GAMSOIL,WEIGHTEDSWP,TOTESTEVAP,    &
+     &FRACUPTAKE,TOTSOILRES,ALPHARET,WS,WR,NRET)
+              INTEGER(KIND=4) :: NLAYER
+              INTEGER(KIND=4) :: NROOTLAYER
+              INTEGER(KIND=4) :: ISPEC
+              REAL(KIND=4) :: SOILWP(75)
+              REAL(KIND=4) :: FRACWATER(75)
+              REAL(KIND=4) :: FRACORGANIC(75)
+              REAL(KIND=4) :: POREFRAC(75)
+              REAL(KIND=4) :: SOILCOND(75)
+              REAL(KIND=4) :: THERMCOND(75)
+              REAL(KIND=4) :: ROOTMASS(75)
+              REAL(KIND=4) :: ROOTLEN(75)
+              REAL(KIND=4) :: LAYTHICK(75)
+              REAL(KIND=4) :: ICEPROP(75)
+              INTEGER(KIND=4) :: EQUALUPTAKE
+              INTEGER(KIND=4) :: RETFUNCTION
+              INTEGER(KIND=4) :: USEMEASSW
+              INTEGER(KIND=4) :: SOILDATA
+              REAL(KIND=4) :: SOILMOISTURE
+              REAL(KIND=4) :: PSIE(75)
+              REAL(KIND=4) :: BPAR(75)
+              REAL(KIND=4) :: KSAT(75)
+              REAL(KIND=4) :: ROOTRESIST
+              REAL(KIND=4) :: ROOTRESFRAC
+              REAL(KIND=4) :: ROOTRAD
+              REAL(KIND=4) :: MINROOTWP
+              REAL(KIND=4) :: TOTLAI
+              REAL(KIND=4) :: WIND
+              REAL(KIND=4) :: ZHT
+              REAL(KIND=4) :: Z0HT
+              REAL(KIND=4) :: GAMSOIL
+              REAL(KIND=4) :: WEIGHTEDSWP
+              REAL(KIND=4) :: TOTESTEVAP
+              REAL(KIND=4) :: FRACUPTAKE(75)
+              REAL(KIND=4) :: TOTSOILRES
+              REAL(KIND=4) :: ALPHARET(75)
+              REAL(KIND=4) :: WS(75)
+              REAL(KIND=4) :: WR(75)
+              REAL(KIND=4) :: NRET(75)
+            END SUBROUTINE CALCSOILPARS
+          END INTERFACE 
+        END MODULE CALCSOILPARS__genmod

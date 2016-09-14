@@ -5616,7 +5616,12 @@ SUBROUTINE OPEN_FILE(fname, unit, action, file_format, status)
       USE maestcom
       IMPLICIT NONE
       INTEGER NOPOINTS,INPUTTYPE,IOERROR,NUMTESTPNT,N,I
-      
+ 
+    
+      CHARACTER*20 filenamenum !glm!
+      INTEGER :: numpar !glm!
+      COMMON /PAR/ numpar !glm! 
+
       CHARACTER(len=256) ::  CTITLE, TTITLE, PTITLE, STITLE,  VTITLE, MTITLE
       REAL XL(MAXP),YL(MAXP),ZL(MAXP),COORDS(MAXP*3)
       REAL X0,Y0,ANGLE,SPACING,ZHEIGHT,COSANG,SINANG,DIST
@@ -5626,9 +5631,14 @@ SUBROUTINE OPEN_FILE(fname, unit, action, file_format, status)
       NAMELIST /XYZ/ COORDS
       NAMELIST /TRANSECT/ ANGLE,SPACING,ZHEIGHT
 
+      
+      write(filenamenum,'(I4.4,A)') numpar,'_points.dat' ! RV
+      OPEN (UPOINTSI, FILE = filenamenum, STATUS='OLD', IOSTAT=IOERROR)
+      
+
 ! Open input file
-      OPEN (UPOINTSI, FILE = 'points.dat', STATUS = 'OLD', &
-         IOSTAT=IOERROR)
+      ! OPEN (UPOINTSI, FILE = 'points.dat', STATUS = 'OLD', &
+      !   IOSTAT=IOERROR)
       
       IF (IOERROR.NE.0) &
         CALL SUBERROR('ERROR: POINTS INPUT FILE DOES NOT EXIST', &
@@ -5692,8 +5702,20 @@ SUBROUTINE OPEN_FILE(fname, unit, action, file_format, status)
          ENDIF
       ENDDO
   
-! Open output file
-      OPEN (UPOINTSO, FILE = 'testflx.dat', STATUS = 'UNKNOWN')
+! Open output file     
+    if (numpar.lt.10) then
+	    write(filenamenum,'(I1.1,A)') numpar,'_testflx.dat' !RV
+        elseif (numpar.lt.100) then
+	    write(filenamenum,'(I2.2,A)') numpar,'_testflx.dat' !RV
+        elseif (numpar.lt.1000) then
+	    write(filenamenum,'(I3.3,A)') numpar,'_testflx.dat' !RV
+        else
+	    write(filenamenum,'(I4.4,A)') numpar,'_testflx.dat' !RV
+    endif
+      CALL OPEN_FILE(filenamenum, UPOINTSO, 'write', 'asc', 'replace')
+      ! OPEN (UPOINTSO, FILE = filenamenum, STATUS='UNKNOWN')
+      ! OPEN (UPOINTSO, FILE = 'testflx.dat', STATUS = 'UNKNOWN')
+      
 ! Write headings to output file
 991   FORMAT (A12,A80) ! For writing comments to output files.
 992   FORMAT (1X,3(A3,1X),11(A12,1X))

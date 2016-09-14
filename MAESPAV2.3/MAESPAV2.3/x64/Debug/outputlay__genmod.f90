@@ -1,0 +1,12 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Tue Sep 06 12:06:53 2016
+        MODULE OUTPUTLAY__genmod
+          INTERFACE 
+            SUBROUTINE OUTPUTLAY(UFILE,FOLLAY,JMAX25,VCMAX25,NOLAY)
+              INTEGER(KIND=4) :: UFILE
+              REAL(KIND=4) :: FOLLAY(15)
+              REAL(KIND=4) :: JMAX25(15,3)
+              REAL(KIND=4) :: VCMAX25(15,3)
+              INTEGER(KIND=4) :: NOLAY
+            END SUBROUTINE OUTPUTLAY
+          END INTERFACE 
+        END MODULE OUTPUTLAY__genmod

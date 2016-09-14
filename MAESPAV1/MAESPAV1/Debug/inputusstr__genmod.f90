@@ -1,0 +1,26 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Sep 08 12:08:39 2016
+        MODULE INPUTUSSTR__genmod
+          INTERFACE 
+            SUBROUTINE INPUTUSSTR(NOUSPOINTS,X0,Y0,GRDAREAI,XLU,YLU,ZLU,&
+     &USLAI,NOFUDATES,DATESFU,HTUS,NOHUDATES,DATESHU,FOLNUS,NONUDATES,  &
+     &DATESNU,EXTKUS)
+              INTEGER(KIND=4) :: NOUSPOINTS
+              REAL(KIND=4) :: X0
+              REAL(KIND=4) :: Y0
+              REAL(KIND=4) :: GRDAREAI
+              REAL(KIND=4) :: XLU(4500)
+              REAL(KIND=4) :: YLU(4500)
+              REAL(KIND=4) :: ZLU(4500)
+              REAL(KIND=4) :: USLAI(30,4500)
+              INTEGER(KIND=4) :: NOFUDATES
+              INTEGER(KIND=4) :: DATESFU(30)
+              REAL(KIND=4) :: HTUS(30,4500)
+              INTEGER(KIND=4) :: NOHUDATES
+              INTEGER(KIND=4) :: DATESHU(30)
+              REAL(KIND=4) :: FOLNUS(30,4500)
+              INTEGER(KIND=4) :: NONUDATES
+              INTEGER(KIND=4) :: DATESNU(30)
+              REAL(KIND=4) :: EXTKUS
+            END SUBROUTINE INPUTUSSTR
+          END INTERFACE 
+        END MODULE INPUTUSSTR__genmod

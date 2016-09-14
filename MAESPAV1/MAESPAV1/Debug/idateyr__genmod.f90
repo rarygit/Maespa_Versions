@@ -1,0 +1,10 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Sep 08 12:08:47 2016
+        MODULE IDATEYR__genmod
+          INTERFACE 
+            FUNCTION IDATEYR(STRDATE,IYEAR)
+              CHARACTER(LEN=8) :: STRDATE
+              INTEGER(KIND=4) :: IYEAR
+              INTEGER(KIND=4) :: IDATEYR
+            END FUNCTION IDATEYR
+          END INTERFACE 
+        END MODULE IDATEYR__genmod

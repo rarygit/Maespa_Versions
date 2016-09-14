@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Thu Sep 08 12:08:41 2016
+        MODULE DAYJUL__genmod
+          INTERFACE 
+            FUNCTION DAYJUL(IDATE)
+              INTEGER(KIND=4) :: IDATE
+              INTEGER(KIND=4) :: DAYJUL
+            END FUNCTION DAYJUL
+          END INTERFACE 
+        END MODULE DAYJUL__genmod

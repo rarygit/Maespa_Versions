@@ -1,4 +1,6 @@
-Sol provenant du watpars de Fabien, modifié celon indications de Mathias + modifié pour Tuzet. 
+Soil parameterized for Aquiares and Tarrazu
+Author: Rémi Vezy.
+Date: 11/08/2016
 
 &watcontrol
 keepwet = 0
@@ -8,60 +10,61 @@ reassignrain = 0
 retfunction = 1
 equaluptake = 0
 usemeaset = 0
-usemeassw = 1
+usemeassw = 0
 USESTAND = 0
 /
-! RV: changed maxstorage because G Le Maire changed its computation (maxstorage*LAI) now
-! it is proportional to LAI. Before it was fixed.
-! RV: changed throughfall to negative value (proportion of water that fall down to the ground.
+
 &wattfall
 rutterb = 3.7
 rutterd = 0.002
 maxstorage = 0.2
-throughfall = -0.7
+throughfall = 0.2
 /
 
 &watinfilt
-expinf = 0.25
+expinf = 0
 /
 
 &rootpars
 rootrad = 0.0001
 rootsrl = 26.733
-rootmasstot = 1000
-nrootlayer = 23
-fracroot = 0.062574 0.161698 0.128899 0.102752 0.08191 0.065295 0.05205 0.041492 0.033076 0.026367 0.021018 0.016755 0.013356 0.010647 0.008487 0.006766 0.005393 0.004299 0.003427 0.002732 0.002178 0.001736 0.001384 
+rootmasstot = 3550.5
+nrootlayer = 20
+fracroot = 0.27 0.26 0.227 0.111 0.032 0.028 0.012 0.017 0.012 0.014 0.0035 0.0015 0.0015 0.0015 0.0015 0.0015 0.0015 0.0015 0.0015 0.0015
 /
+! rootmasstot and fracroot from:
+! Defrênet et al. in press (Belowground Net Primary Productivity in Coffea arabica)
+
 
 &plantpars
+minrootwp = -1.5
 minleafwp = -3
 plantk = 0.78
 /
 
 Variable soil water retention functions with depth.
 &soilret
-bpar = 6.319 6.668 7.017 7.366 7.715 8.063 8.412
-psie = -0.000583 -0.000664 -0.000744 -0.000825 -0.000905 -0.000986 -0.001066
-ksat = 6.8
+bpar = 5.184 5.041 5.782 5.664 4.621 3.577 3.844 4.112 4.379 4.646 4.914 5.181 5.448 5.448 5.448 5.448 5.448 5.448 5.448 5.448 
+psie = -0.000332 -0.000368 -0.000389 -0.000381 -0.000317 -0.000254 -0.000262 -0.000269 -0.000277 -0.000284 -0.000292 -0.000299 -0.000307 -0.000307 -0.000307 -0.000307 -0.000307 -0.000307 -0.000307 -0.000307 
+ksat = 35.605 31.599 29.627 30.349 39.52 48.69 47.315 45.94 44.565 43.19 41.815 40.44 39.065 39.065 39.065 39.065 39.065 39.065 39.065 39.065 
 /
+! bpar, psie, ksat and porefrac are from CALICATAS 2010 (with SOM dilution)
 
 &laypars
-nlayer = 49
-laythick = 0.15
-porefrac = 0.65 0.63 0.61 0.58 0.56 0.54 0.52
-fracorganic = 0.0782 0.0495 0.0335 0.0277 0.0210 0.0154 0.0110 0.0077 0.0056
+nlayer = 20
+laythick = 0.15 0.15 0.3 0.4 0.25 0.25 0.25 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 
+porefrac = 0.425 0.435 0.441 0.439 0.419 0.4 0.402 0.405 0.407 0.41 0.413 0.415 0.418 0.418 0.418 0.418 0.418 0.418 0.418 0.418 
+drainlimit = 0
+fracorganic = 0.066 0.049 0.047 0.043 0.036 0.036 0.036 0.036 0.036 0.036 0.036 0.036 0.036 0.036 0.036 0 0 0 0 0
 /
+! porefrac and fracorganic from CALICATAS 2010
 
 &initpars
-initwater = 0.4
-soiltemp = 21
+initwater = 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 0.084 
+soiltemp = 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 21.36 
 /
 
 &soiletpars
 drythickmin = 0.001
-tortpar = 2
+tortpar = 0.66
 /
-
-
-
-
