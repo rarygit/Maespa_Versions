@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:31 2016
+        MODULE CALCNIR__genmod
+          INTERFACE 
+            SUBROUTINE CALCNIR(RADABV,FBEAM)
+              REAL(KIND=4) :: RADABV(300,3)
+              REAL(KIND=4) :: FBEAM(300,3)
+            END SUBROUTINE CALCNIR
+          END INTERFACE 
+        END MODULE CALCNIR__genmod

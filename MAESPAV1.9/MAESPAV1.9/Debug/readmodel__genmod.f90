@@ -1,0 +1,16 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:29 2016
+        MODULE READMODEL__genmod
+          INTERFACE 
+            SUBROUTINE READMODEL(UFILE,GSMODI,JMMODI,RDMODI,SSMODI,     &
+     &RWMODI,ITERMAXI,ISIMUSI)
+              INTEGER(KIND=4) :: UFILE
+              INTEGER(KIND=4) :: GSMODI
+              INTEGER(KIND=4) :: JMMODI
+              INTEGER(KIND=4) :: RDMODI
+              INTEGER(KIND=4) :: SSMODI
+              INTEGER(KIND=4) :: RWMODI
+              INTEGER(KIND=4) :: ITERMAXI
+              INTEGER(KIND=4) :: ISIMUSI
+            END SUBROUTINE READMODEL
+          END INTERFACE 
+        END MODULE READMODEL__genmod

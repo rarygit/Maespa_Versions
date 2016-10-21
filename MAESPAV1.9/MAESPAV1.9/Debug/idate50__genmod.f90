@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:27 2016
+        MODULE IDATE50__genmod
+          INTERFACE 
+            FUNCTION IDATE50(STRDATE)
+              CHARACTER(LEN=8) :: STRDATE
+              INTEGER(KIND=4) :: IDATE50
+            END FUNCTION IDATE50
+          END INTERFACE 
+        END MODULE IDATE50__genmod

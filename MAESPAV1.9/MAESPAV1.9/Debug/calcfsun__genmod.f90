@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:31 2016
+        MODULE CALCFSUN__genmod
+          INTERFACE 
+            SUBROUTINE CALCFSUN(FBEAM,FSUN)
+              REAL(KIND=4) :: FBEAM(300,3)
+              REAL(KIND=4) :: FSUN(300)
+            END SUBROUTINE CALCFSUN
+          END INTERFACE 
+        END MODULE CALCFSUN__genmod

@@ -1,0 +1,19 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:29 2016
+        MODULE OPENINPUTF__genmod
+          INTERFACE 
+            SUBROUTINE OPENINPUTF(CTITLE,TTITLE,PTITLE,STITLE,WTITLE,   &
+     &UTITLE,IWATFILE,KEEPZEN,IUSTFILE,IN_PATH,OUT_PATH)
+              CHARACTER(*) :: CTITLE
+              CHARACTER(*) :: TTITLE
+              CHARACTER(*) :: PTITLE
+              CHARACTER(*) :: STITLE
+              CHARACTER(*) :: WTITLE
+              CHARACTER(*) :: UTITLE
+              INTEGER(KIND=4) :: IWATFILE
+              INTEGER(KIND=4) :: KEEPZEN
+              INTEGER(KIND=4) :: IUSTFILE
+              CHARACTER(*) :: IN_PATH
+              CHARACTER(*) :: OUT_PATH
+            END SUBROUTINE OPENINPUTF
+          END INTERFACE 
+        END MODULE OPENINPUTF__genmod

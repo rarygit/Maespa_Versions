@@ -1,0 +1,30 @@
+Program:    MAESPA: version Feb 2014                                                        
+Control:    	Bago BB gs                                                                     
+Trees:      Example trees file.                                                             
+Structure:                                                                      Multispecies
+Physiology:                                                                     Multispecies
+Met data:   Exmaple met file (Tumbarumba)                                                   
+Water bal.: Example water balance parameters.                                               
+                                                                                
+ Species codes:
+           1  : Petit                         
+           2  : Moyen                         
+           3  : Grand                         
+                                                                                
+DOY: simulation date
+Tree: tree number
+Spec: tree species number
+absPAR:   absorbed PAR              MJ tree-1 d-1
+absNIR:   absorbed NIR              MJ  tree-1 d-1
+absTherm: absorbed thermal          MJ tree-1 d-1
+totPs: gross photosynthesis         mol tree-1 d-1
+totRf: daily foliar respiration     mol tree-1 d-1
+netPs: photosyn. net of foliar resp   mol tree-1 d-1
+totLE1: daily transpiration         mol H2O tree-1 d-1
+totLE2: daily transpirn (CANOPY calc) mol H2O m-2 d-1
+totH:  daily sensible heat flux     MJ tree-1 d-1
+                                                                                
+Columns: DOY Tree Spec absPAR absNIR absTherm totPs totRf netPs totLE1 totLE2 totH
+      1  112    3       4.0631       2.3893       0.7980       0.2060       0.0417       0.1643      47.5753       7.1706       4.9014
+      2  112    3       3.1489       1.7942       0.8256       0.2403       0.0382       0.2020      46.1846       7.1802       3.4824
+      3  112    3       4.2795       2.5183       0.8309       0.1543       0.0634       0.0909      50.3404       7.6864       5.1804

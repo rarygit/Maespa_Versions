@@ -5,11 +5,11 @@ MODULE maestcom
     CHARACTER(LEN=3), PARAMETER :: format_binary = 'bin'
     
     ! Maximum dimensions of arrays
-    INTEGER, PARAMETER :: MAXT = 4500        ! Maximum no. of trees in plot
+    INTEGER, PARAMETER :: MAXT = 5000        ! Maximum no. of trees in plot
     INTEGER, PARAMETER :: MAXLAY = 15         ! Maximum no. of layers for radiation
     INTEGER, PARAMETER :: MAXSOILLAY = 75    ! Maximum no. of layers of soil (RAD)
-    INTEGER, PARAMETER :: MAXSP = 4          ! Maximum no. of species (RAD).
-    INTEGER, PARAMETER :: MAXP = 4500        ! Maximum no. of gridpoints
+    INTEGER, PARAMETER :: MAXSP = 5          ! Maximum no. of species (RAD).
+    INTEGER, PARAMETER :: MAXP = 5000        ! Maximum no. of gridpoints
     INTEGER, PARAMETER :: MAXC = 3            ! Maximum no. of leaf area distributions
     INTEGER, PARAMETER :: MAXANG = 20          ! Maximum no. of zenith & leaf angles
     INTEGER, PARAMETER :: MAXD = 13           ! For resp prog

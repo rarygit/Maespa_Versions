@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:31 2016
+        MODULE ASSIGNRAIN__genmod
+          INTERFACE 
+            SUBROUTINE ASSIGNRAIN(TOTAL,PPT)
+              REAL(KIND=4) :: TOTAL
+              REAL(KIND=4) :: PPT(300)
+            END SUBROUTINE ASSIGNRAIN
+          END INTERFACE 
+        END MODULE ASSIGNRAIN__genmod

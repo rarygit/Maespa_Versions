@@ -1,0 +1,21 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:27 2016
+        MODULE SUMHRUS__genmod
+          INTERFACE 
+            SUBROUTINE SUMHRUS(IHOUR,NOUSPOINTS,GRDAREAI,AREAUS,PARUS,  &
+     &PARUSMEAN,PARUSSD,APARUS,PSUS,ETUS,THRABUS,FCO2US,FH2OUS)
+              INTEGER(KIND=4) :: IHOUR
+              INTEGER(KIND=4) :: NOUSPOINTS
+              REAL(KIND=4) :: GRDAREAI
+              REAL(KIND=4) :: AREAUS(5000)
+              REAL(KIND=4) :: PARUS(300,5000)
+              REAL(KIND=4) :: PARUSMEAN(300)
+              REAL(KIND=4) :: PARUSSD(300)
+              REAL(KIND=4) :: APARUS(300,5000)
+              REAL(KIND=4) :: PSUS(300,5000)
+              REAL(KIND=4) :: ETUS(300,5000)
+              REAL(KIND=4) :: THRABUS(300)
+              REAL(KIND=4) :: FCO2US(300)
+              REAL(KIND=4) :: FH2OUS(300)
+            END SUBROUTINE SUMHRUS
+          END INTERFACE 
+        END MODULE SUMHRUS__genmod

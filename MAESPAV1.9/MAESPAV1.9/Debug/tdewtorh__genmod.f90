@@ -1,0 +1,10 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:31 2016
+        MODULE TDEWTORH__genmod
+          INTERFACE 
+            SUBROUTINE TDEWTORH(TDEW,TAIR,RH)
+              REAL(KIND=4) :: TDEW(300)
+              REAL(KIND=4) :: TAIR(300)
+              REAL(KIND=4) :: RH(300)
+            END SUBROUTINE TDEWTORH
+          END INTERFACE 
+        END MODULE TDEWTORH__genmod

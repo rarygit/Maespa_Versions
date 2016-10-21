@@ -1,0 +1,9 @@
+        !COMPILER-GENERATED INTERFACE MODULE: Fri Oct 07 14:37:27 2016
+        MODULE MONTH__genmod
+          INTERFACE 
+            FUNCTION MONTH(IDATE50)
+              INTEGER(KIND=4) :: IDATE50
+              INTEGER(KIND=4) :: MONTH
+            END FUNCTION MONTH
+          END INTERFACE 
+        END MODULE MONTH__genmod
