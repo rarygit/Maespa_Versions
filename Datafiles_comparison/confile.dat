@@ -1,26 +1,27 @@
 
 &control
 iohrly=0
-iotutd=9       		
-ioresp=0       		
-iowatbal=0 
-ipoints= 1	      	
+iotutd=9       	
+ioresp=0       	
+ipoints= 1	
+iowatbal=0       	
+verbose= 2
 /	
 		
-&species
-
-nspecies = 4
+&species		
+nspecies = 4	
 speciesnames = 
-phyfiles = 'phy1.dat' 'phy2.dat' 'phy3.dat' 'phy4.dat'
-strfiles = 'str1.dat' 'str2.dat' 'str3.dat' 'str4.dat'
+phyfiles = 'phy1.dat' 'phy2.dat' 'phy3.dat' 'phy4.dat' 	
+strfiles = 'str1.dat' 'str2.dat' 'str3.dat' 'str4.dat' 	
 /	
 
-dates for simulation start and end (must overlap with met file). 	
+
 	
 &dates	
 	
-startdate = '09/06/2015'
-enddate = '09/06/2015'
+startdate = '01/01/2015'	
+enddate = '01/01/2015'
+	
 /	
 		
 	
@@ -32,7 +33,12 @@ indicate which target tree(s) to use.
 notrees = 1266
 itargets = 1
 /	
+		
+	
 
+	
+		
+	
 
 number of angles and layers to integrate over. 	
 	
@@ -54,7 +60,7 @@ choice of submodels.
 	
 &model	
 	
-modelgs = 4	
+modelgs = 6	
 	
 modelrd = 0	
 	
@@ -63,6 +69,7 @@ modeljm = 0
 itermax = 100	
 	
 modelss = 0	
+itertairmax= 20
 	
 /	
 		

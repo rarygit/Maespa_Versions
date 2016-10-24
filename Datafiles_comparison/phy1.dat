@@ -1,63 +1,72 @@
-	
-nmber of age classes of foliage (two, but no difference)
-&noages
-noagep = 1
-/
-	
-proportion of leaf area in each age class
-&phenol
-prop = 1.0
-/
-	
-reflectance and transmittance (obtain from remote sensing group)
-&absorp
-nolayers = 1
-rhosol = 0.18	0.25	0.05
-atau = 0.093	0.34	0.01
-arho = 0.082	0.49	0.05
-/	
-
+		
+nmber of age classes of foliage (two, but no difference)			
+&noages			
+noagep = 1			
+/			
+			
+proportion of leaf area in each age class			
+&phenol			
+prop = 1.0			
+/			
+			
+See list of parameters			
+&absorp			
+nolayers = 1			
+rhosol = 0.18	0.25	0.05			
+atau = 0.036	0.43	0.01
+arho = 0.05	0.55	0.05
+/			
+rhosol from N Franck p. 123
+atau et arho PAR from Foley et al.
+			
 &bbgscon
-nodates = 1
-condunits = 'H2O'
-/
-
-Ball-Berry parameters (when MODELGS = 2)
-&bbmgs
-dates = '01/03/12'
-g0 = 0.001
-g1 = 14
-nsides =	1			
-wleaf =	0.2
-/
+nodates= 1			
+condunits= 'CO2'
+wleafnodates= 1			
+/			
+			
+Ball-Berry parameters (when MODELGS = 2)			
+&bbtuz
+dates= '31/09/10'
+g0 = 0.0065
+g1 = 0.96
+GNIGHT= 0
+sf = 8
+psiv = -1.8
+nsides = 1
+wleaf = 0.068
+gamma = 59.78
+wleafdates= '31/09/10'
+/			
 	
+			
 &jmaxcon			
 nolayers = 1			
 noages = 1			
 nodates = 1			
-/
-	
+/			
+			
 &jmax
-values = 112
-dates = '01/01/11'
+values = 88.21			
+dates = '01/04/12'			
 /
-	
-&vcmaxcon
-nolayers = 1
-noages = 1
-nodates = 1
+			
+&vcmaxcon			
+nolayers = 1			
+noages = 1			
+nodates = 1			
 /
-	
-&vcmax
-values = 75
-dates = '01/01/11'
-/
-	
+			
+&vcmax			
+values = 44.06			
+dates = '01/04/12'
+/			
+			
 &jmaxpars
-theta =0.7
-eavj = 43790
-edvj = 200000
-delsj = 644.4338
+theta =0.96
+eavj = 37000
+edvj = 220000
+delsj = 710
 /
 
 &ajqcon
@@ -67,41 +76,53 @@ nodates = 1
 /
 
 &ajq
-values = 0.48
+values = 0.222
 dates = '01/01/12'
 /
-	
-&vcmaxpars
-eavc = 51560
-/
-	
-&rdcon
+
+&vcmaxpars			
+eavc = 64800
+edvc = 200000
+delsc = 636			
+/			
+			
+&rdcon			
 nolayers = 1
-noages = 1
-nodates = 1
+noages = 1			
+nodates = 1			
+/			
+
+			
+&rd			
+values = 0.1752			
+dates = '01/04/12'			
+/			
+			
+&rdpars			
+rtemp = 20.19			
+q10f = 0.0873			
+dayresp = 0.4			
+effyrf = 0.5151			
+/ 			
+			
+&slacon			
+noages = 1			
+nodates = 1			
+nolayers = 1			
+/			
+			
+&sla			
+values = 11.5			
+dates = '23/02/12'			
+/			
+valeur donnée par Fabien			
+
+calculs_5respiration MAESTRA
+&WRESP
+EFFY=0.5072
+RM=0.0000012
+RTEMP=20.2
+Q10W=0.087317444
 /
 
-from Nygren 
-&rd
-values = 0.89
-dates = '01/01/11'
-/
 
-&rdpars
-rtemp = 24
-q10f = 0.0575
-dayresp = 0.6
-effyrf = 0.4
-/ 
-	
-&slacon
-noages = 1
-nodates = 1
-nolayers = 1
-/
-	
-&sla
-values = 17.6
-dates = '01/01/11'
-/
-	

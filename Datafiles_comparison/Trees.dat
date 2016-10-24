@@ -1,3 +1,6 @@
+ENSAYO transmitance Shade Trees Only 3 species 
+R.Vezy 18/08/2015 Leaf area of the trees trunk changed according to volume
+
 
 &plot
 
@@ -5,10 +8,7 @@ x0 = 0
 y0 = 0
 xmax = 517.338
 ymax = 349.431
-intx0=84.12
-inty0=91.63
-intxmax=91.12
-intymax=98.63
+watbalarea = 79.5
 xslope = 0
 yslope = 0
 bearing = 270
@@ -42,7 +42,7 @@ ispecies =
 
 &indivradx
 
-nodates =
+nodates = 
 values = 
 dates = 
 /
@@ -59,9 +59,8 @@ dates =
 
 nodates = 22
 values = 
-dates = 
+dates =
 /
-
 
 
 
