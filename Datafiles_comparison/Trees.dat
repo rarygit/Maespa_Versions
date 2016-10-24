@@ -1,0 +1,90 @@
+
+&plot
+
+x0 = 0
+y0 = 0
+xmax = 517.338
+ymax = 349.431
+intx0=84.12
+inty0=91.63
+intxmax=91.12
+intymax=98.63
+xslope = 0
+yslope = 0
+bearing = 270
+notrees = 1266
+/
+
+
+&aerodyn
+
+zht=10
+
+zpd=1.43
+
+z0ht=0.27
+
+/
+
+
+&xy
+
+xycoords = 
+/
+
+
+
+&speclist
+
+ispecies = 
+/
+
+
+&indivradx
+
+nodates =
+values = 
+dates = 
+/
+
+
+&indivrady
+nodates = 22
+values = 
+dates = 
+/
+
+
+&indivhtcrown
+
+nodates = 22
+values = 
+dates = 
+/
+
+
+
+
+&indivdiam
+
+nodates = 1
+values = 
+dates = 
+/
+
+
+
+&indivhttrunk
+
+nodates = 1
+values = 
+dates = 
+/
+
+
+&indivlarea
+
+nodates = 22
+values = 
+dates = 
+/

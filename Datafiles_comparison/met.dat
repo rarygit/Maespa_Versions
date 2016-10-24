@@ -1,0 +1,24 @@
+
+&environ
+difsky=	0
+ca=	385
+/
+
+&latlong
+lat=	9	53	45
+long=	83	40	04
+tzlong=	90
+lonhem=	'W'
+lathem=	'N'
+/
+
+&metformat
+dayorhr = 1
+khrsperday = 48
+nocolumns = 10
+startdate = '07/03/2015'
+enddate = '12/08/2015'
+columns = 'DOY' 'HOUR' 'WIND' 'TAIR' 'RH%' 'PAR' 'FBEAM' 'PRESS' 'SWC' 'PPT' 
+/
+
+DATA STARTS

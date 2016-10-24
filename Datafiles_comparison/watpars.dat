@@ -1,0 +1,61 @@
+&watcontrol
+keepwet = 0
+simtsoil = 1
+SIMSOILEVAP = 1
+reassignrain = 0
+retfunction = 1
+equaluptake = 0
+usemeaset = 0
+usemeassw = 0
+USESTAND = 0
+/
+
+&wattfall
+rutterb = 
+rutterd =
+maxstorage = 
+throughfall = 
+/
+
+&watinfilt
+expinf = 
+/
+
+&rootpars
+rootrad = 
+rootdens = 
+rootmasstot = 
+nrootlayer = 20
+fracroot = 
+/
+
+&plantpars
+minrootwp = 
+minleafwp = 
+plantk = 
+/
+
+Variable soil water retention functions with depth.
+&soilret
+bpar = 
+psie = 
+ksat =
+/
+
+&laypars
+nlayer = 20
+laythick = 
+porefrac =
+drainlimit = 
+fracorganic = 
+/
+
+&initpars
+initwater = 
+soiltemp = 
+/
+
+&soiletpars
+drythickmin = 
+tortpar = 
+/
