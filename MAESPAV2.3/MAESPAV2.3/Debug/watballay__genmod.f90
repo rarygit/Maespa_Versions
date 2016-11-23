@@ -1,4 +1,4 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Thu Apr 28 18:03:55 2016
+        !COMPILER-GENERATED INTERFACE MODULE: Wed Nov 23 16:30:03 2016
         MODULE WATBALLAY__genmod
           INTERFACE 
             SUBROUTINE WATBALLAY(IDAY,IHOUR,PPT,RUTTERB,RUTTERD,        &
@@ -38,11 +38,11 @@
               REAL(KIND=4) :: ZPD
               REAL(KIND=4) :: PRESS
               REAL(KIND=4) :: ETMM
-              REAL(KIND=4) :: ETMMSPEC(4)
+              REAL(KIND=4) :: ETMMSPEC(5)
               INTEGER(KIND=4) :: NOSPEC
               INTEGER(KIND=4) :: USEMEASET
               REAL(KIND=4) :: ETMEAS
-              REAL(KIND=4) :: FRACUPTAKESPEC(51,4)
+              REAL(KIND=4) :: FRACUPTAKESPEC(51,5)
               REAL(KIND=4) :: ICEPROP(51)
               REAL(KIND=4) :: FRACWATER(51)
               REAL(KIND=4) :: DRAINLIMIT(51)

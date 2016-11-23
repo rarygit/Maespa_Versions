@@ -1,4 +1,4 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Tue Sep 06 12:06:59 2016
+        !COMPILER-GENERATED INTERFACE MODULE: Wed Nov 23 15:25:57 2016
         MODULE SCALEUP__genmod
           INTERFACE 
             SUBROUTINE SCALEUP(IHOUR,USESTAND,NOTARGETS,NOALLTREES,FOLT,&
@@ -43,7 +43,7 @@
               REAL(KIND=4) :: VPD
               REAL(KIND=4) :: ETMM
               REAL(KIND=4) :: ETUSMM
-              REAL(KIND=4) :: ETMMSPEC(4)
+              REAL(KIND=4) :: ETMMSPEC(5)
               REAL(KIND=4) :: TREEH
               REAL(KIND=4) :: RGLOBUND1
               REAL(KIND=4) :: RGLOBUND2

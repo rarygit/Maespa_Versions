@@ -659,7 +659,7 @@ PROGRAM maespa
             ! Run the iteration on air temperature and vapour pressure within the canopy
             CALL ITERTCAN(IHOUR, ITERTAIR, ITERTAIRMAX, NUMPNT, NOTARGETS, &
 			                TCAN2, TLEAFTABLE, TAIR, PREVTAIRCAN, VPD, PREVVPDCAN, &
-			                TAIRABOVE, TAIRNEW, VPDNEW)
+			                TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW)
 
             
             CALL ZEROFSOIL(FSOIL1,NSUMMED,TOTTMP)
@@ -1575,14 +1575,13 @@ PROGRAM maespa
                         GOTO 1112                 
                     ELSE IF ((ITERTAIR.EQ.ITERTAIRMAX)) THEN    
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'no convergence'
-                        !PREVTAIRCAN = PREVTAIRCAN
-                        !PREVVPDCAN = PREVVPDCAN
-                        PREVTAIRCAN = TAIRNEW ! glm
-                        PREVVPDCAN = VPDNEW ! glm
+                        PREVTAIRCAN = TAIRABOVE ! RV: if no convergence, take input tair
+                        PREVVPDCAN = VPDABOVE   ! RV: if no convergence, take input VPD
+                        print*, 'TAIR= ', TAIR(IHOUR),'PREVTAIRCAN=',PREVTAIRCAN,' TAIRABOVE=', TAIRABOVE, ' TAIRNEW=',TAIRNEW 
                         GOTO 1112
                     ELSE
                         PREVTAIRCAN = TAIRNEW ! glm
-                        PREVVPDCAN = VPDNEW ! glm                      
+                        PREVVPDCAN = VPDNEW ! glm       
                         GOTO 1111
                     END IF
                 ENDIF
@@ -2117,15 +2116,15 @@ END SUBROUTINE SUMDAILY
 
 SUBROUTINE  ITERTCAN(IHOUR, ITERTAIR, ITERTAIRMAX, NUMPNT, NOTARGETS, &
 			TCAN2, TLEAFTABLE, TAIR, PREVTAIRCAN, VPD, PREVVPDCAN, &
-			TAIRABOVE, TAIRNEW, VPDNEW)
+			TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW)
 
 USE maestcom
 IMPLICIT NONE
-INTEGER ITERTAIR, ITERTAIRMAX, IHOUR
+INTEGER ITERTAIR, ITERTAIRMAX, IHOUR, ITERTAIREND
 INTEGER IDIPT, IDTAR, NUMPNT, NOTARGETS
 REAL TCAN2, TLEAFTABLE(MAXT,MAXP)
-REAL TAIR(MAXHRS), PREVTAIRCAN, VPD(MAXHRS), PREVVPDCAN
-REAL TAIRABOVE, WINDAH(MAXHRS)
+REAL TAIR(MAXHRS), PREVTAIRCAN, VPD(MAXHRS), PREVVPDCAN  
+REAL TAIRABOVE, WINDAH(MAXHRS), VPDABOVE
 REAL TAIRNEW, VPDNEW
 
 ! when itertairmax = 1, no iteration on air temperature within the canopy
@@ -2167,11 +2166,13 @@ ELSE
 
 	ITERTAIR = ITERTAIR + 1
             
-	! if we had reached itertairmax, we take the taircan as the one from the previous half-hour
+	! if we had reached itertairmax, taircan= tair from input
 	IF (ITERTAIR.EQ.ITERTAIRMAX) THEN
-		TAIR(IHOUR) = PREVTAIRCAN
-		VPD(IHOUR) = PREVVPDCAN
-		TCAN2 = PREVTAIRCAN
+		TAIR(IHOUR) = TAIRABOVE
+		VPD(IHOUR) = VPDABOVE
+		TCAN2 = TAIRABOVE
+        VPDNEW= VPD(IHOUR) 
+        TAIRNEW= TAIR(IHOUR) 
 		DO IDIPT = 1,NUMPNT
 			DO IDTAR = 1,NOTARGETS
 				TLEAFTABLE(IDTAR,IDIPT) = TCAN2

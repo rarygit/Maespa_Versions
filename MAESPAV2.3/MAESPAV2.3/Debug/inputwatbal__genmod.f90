@@ -1,4 +1,4 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Thu Apr 28 16:12:48 2016
+        !COMPILER-GENERATED INTERFACE MODULE: Wed Nov 23 16:30:01 2016
         MODULE INPUTWATBAL__genmod
           INTERFACE 
             SUBROUTINE INPUTWATBAL(NOSPEC,BPAR,PSIE,KSAT,ROOTRESIST,    &
@@ -22,7 +22,7 @@
               REAL(KIND=4) :: ROOTSRLTABLE(45)
               REAL(KIND=4) :: ROOTMASSTOTTABLE(45)
               REAL(KIND=4) :: MINROOTWP
-              REAL(KIND=4) :: MINLEAFWP(4)
+              REAL(KIND=4) :: MINLEAFWP(5)
               REAL(KIND=4) :: PLANTKTABLE(45)
               REAL(KIND=4) :: KSCALING
               REAL(KIND=4) :: THROUGHFALL
@@ -37,7 +37,7 @@
               INTEGER(KIND=4) :: NROOTLAYER
               REAL(KIND=4) :: LAYTHICK(51)
               REAL(KIND=4) :: INITWATER(51)
-              REAL(KIND=4) :: FRACROOTTABLE(51,45,4)
+              REAL(KIND=4) :: FRACROOTTABLE(51,45,5)
               REAL(KIND=4) :: POREFRAC(51)
               REAL(KIND=4) :: SOILTEMP(51)
               INTEGER(KIND=4) :: KEEPWET
@@ -62,10 +62,10 @@
               INTEGER(KIND=4) :: DATESROOT(45)
               INTEGER(KIND=4) :: NOROOTDATES
               INTEGER(KIND=4) :: NOROOTSPEC
-              INTEGER(KIND=4) :: RFAGEBEGIN(4)
-              REAL(KIND=4) :: RFPAR1(4)
-              REAL(KIND=4) :: RFPAR2(4)
-              REAL(KIND=4) :: RFPAR3(4)
+              INTEGER(KIND=4) :: RFAGEBEGIN(5)
+              REAL(KIND=4) :: RFPAR1(5)
+              REAL(KIND=4) :: RFPAR2(5)
+              REAL(KIND=4) :: RFPAR3(5)
               INTEGER(KIND=4) :: ROOTFRONTLIMIT
               INTEGER(KIND=4) :: IWATTABLAYER
               REAL(KIND=4) :: PLATDRAIN

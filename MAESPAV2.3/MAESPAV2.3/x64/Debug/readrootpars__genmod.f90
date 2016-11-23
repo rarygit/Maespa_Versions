@@ -1,4 +1,4 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Tue Sep 06 12:06:54 2016
+        !COMPILER-GENERATED INTERFACE MODULE: Wed Nov 23 15:25:55 2016
         MODULE READROOTPARS__genmod
           INTERFACE 
             SUBROUTINE READROOTPARS(UFILE,NOSPEC,ROOTRESFRACI,          &
@@ -12,16 +12,16 @@
               REAL(KIND=4) :: ROOTSRLTABLEI(45)
               REAL(KIND=4) :: ROOTMASSTOTTABLEI(45)
               INTEGER(KIND=4) :: NROOTLAYERI
-              REAL(KIND=4) :: FRACROOTI(51,45,4)
+              REAL(KIND=4) :: FRACROOTI(51,45,5)
               REAL(KIND=4) :: LAYTHICK(51)
               REAL(KIND=4) :: ROOTBETA
               INTEGER(KIND=4) :: DATESROOTI(45)
               INTEGER(KIND=4) :: NOROOTDATES
               INTEGER(KIND=4) :: NOROOTSPEC
-              INTEGER(KIND=4) :: RFAGEBEGINI(4)
-              REAL(KIND=4) :: RFPAR1I(4)
-              REAL(KIND=4) :: RFPAR2I(4)
-              REAL(KIND=4) :: RFPAR3I(4)
+              INTEGER(KIND=4) :: RFAGEBEGINI(5)
+              REAL(KIND=4) :: RFPAR1I(5)
+              REAL(KIND=4) :: RFPAR2I(5)
+              REAL(KIND=4) :: RFPAR3I(5)
               INTEGER(KIND=4) :: ROOTFRONTLIMITI
             END SUBROUTINE READROOTPARS
           END INTERFACE 

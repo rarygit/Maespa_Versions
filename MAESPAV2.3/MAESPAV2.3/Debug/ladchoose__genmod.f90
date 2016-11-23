@@ -1,4 +1,4 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Thu Apr 28 16:12:47 2016
+        !COMPILER-GENERATED INTERFACE MODULE: Wed Nov 23 16:30:01 2016
         MODULE LADCHOOSE__genmod
           INTERFACE 
             SUBROUTINE LADCHOOSE(IDAY,ISTART,NSPECIES,NOLADDATES,       &
@@ -6,10 +6,10 @@
               INTEGER(KIND=4) :: IDAY
               INTEGER(KIND=4) :: ISTART
               INTEGER(KIND=4) :: NSPECIES
-              INTEGER(KIND=4) :: NOLADDATES(4)
-              INTEGER(KIND=4) :: DATESLAD(45,4)
-              REAL(KIND=4) :: BPTTABLESPEC(8,3,4,45)
-              REAL(KIND=4) :: BPTSPEC(8,3,4)
+              INTEGER(KIND=4) :: NOLADDATES(5)
+              INTEGER(KIND=4) :: DATESLAD(45,5)
+              REAL(KIND=4) :: BPTTABLESPEC(8,3,5,45)
+              REAL(KIND=4) :: BPTSPEC(8,3,5)
             END SUBROUTINE LADCHOOSE
           END INTERFACE 
         END MODULE LADCHOOSE__genmod

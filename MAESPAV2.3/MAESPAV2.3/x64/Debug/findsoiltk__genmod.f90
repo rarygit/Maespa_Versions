@@ -1,4 +1,4 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Tue Sep 06 12:06:59 2016
+        !COMPILER-GENERATED INTERFACE MODULE: Wed Nov 23 15:25:57 2016
         MODULE FINDSOILTK__genmod
           INTERFACE 
             SUBROUTINE FINDSOILTK(IDAY,TAIRK,GAMSOIL,PRESSPA,SOILTK,    &
@@ -21,7 +21,7 @@
               REAL(KIND=4) :: DRYTHICK
               REAL(KIND=4) :: TORTPAR
               REAL(KIND=4) :: VIEWFACTOR
-              REAL(KIND=4) :: RHOSOLSPEC(1:,4)
+              REAL(KIND=4) :: RHOSOLSPEC(1:3,5)
               REAL(KIND=4) :: RGLOBUND1
               REAL(KIND=4) :: RGLOBUND2
               REAL(KIND=4) :: DOWNTHAV
