@@ -1577,7 +1577,7 @@ PROGRAM maespa
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'no convergence'
                         PREVTAIRCAN = TAIRABOVE ! RV: if no convergence, take input tair
                         PREVVPDCAN = VPDABOVE   ! RV: if no convergence, take input VPD
-                        print*, 'TAIR= ', TAIR(IHOUR),'PREVTAIRCAN=',PREVTAIRCAN,' TAIRABOVE=', TAIRABOVE, ' TAIRNEW=',TAIRNEW 
+                        print*, 'TAIR= ', TAIR(IHOUR),'PREVTAIRCAN=',PREVTAIRCAN,' TAIRABOVE=', TAIRABOVE, ' TCAN2=',TCAN2 
                         GOTO 1112
                     ELSE
                         PREVTAIRCAN = TAIRNEW ! glm
