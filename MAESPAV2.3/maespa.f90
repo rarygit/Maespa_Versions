@@ -659,7 +659,8 @@ PROGRAM maespa
             ! Run the iteration on air temperature and vapour pressure within the canopy
             CALL ITERTCAN(IHOUR, ITERTAIR, ITERTAIRMAX, NUMPNT, NOTARGETS, &
 			                TCAN2, TLEAFTABLE, TAIR, PREVTAIRCAN, VPD, PREVVPDCAN, &
-			                TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW)
+			                TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW,ITERTAIRNOCONV, &
+                            TSOILSURFACE,SOILTK,SOILTEMP)
 
             
             CALL ZEROFSOIL(FSOIL1,NSUMMED,TOTTMP)
@@ -927,7 +928,7 @@ PROGRAM maespa
                     WEIGHTEDSWP = 0
                 ENDIF
                 
-
+          
                 ! Test to see if daylight hours or if any foliage
                 IF ((ABS(ZEN(IHOUR)) <  PI/2.0 ) .AND. (RADABV(IHOUR,1) > 1.0) .AND. (FOLT(1) > 0.0)) THEN
                     
@@ -1551,7 +1552,7 @@ PROGRAM maespa
 
                 
                 
-                IF (ITERTAIRMAX.GT.1) THEN
+                IF ((ITERTAIRMAX.GT.1).AND.(ITERTAIRNOCONV.EQ.0)) THEN
                     
                     ! average canopy temperature
                     TCAN2 = sum(TCAN(1:NOTARGETS, IHOUR)) / NOTARGETS
@@ -1560,10 +1561,7 @@ PROGRAM maespa
                     CALL TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIR(IHOUR),TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW,RHNEW,& 
                                             WINDAH(IHOUR), ZPD, ZHT, Z0HT, DELTA, PRESS(IHOUR),QC,TREEH,TOTLAI,GCANOP, &
                                             EVAPSTORE,HTOT)
-                    
-                   !print*,PREVVPDCAN,VPDNEW
-
-                    
+                                        
                     IF ((ABS(TAIRNEW - TAIR(IHOUR)).LT.TOL) &
                         .AND. (ABS(PREVTSOIL - TSOILSURFACE).LT.TOL) &
                         .AND. (ABS(VPDNEW - PREVVPDCAN).LT.(50*TOL))) THEN
@@ -1577,8 +1575,7 @@ PROGRAM maespa
                         IF(VERBOSE.GE.2)print*, 'ihour',ihour,'no convergence'
                         PREVTAIRCAN = TAIRABOVE ! RV: if no convergence, take input tair
                         PREVVPDCAN = VPDABOVE   ! RV: if no convergence, take input VPD
-                        print*, 'TAIR= ', TAIR(IHOUR),'PREVTAIRCAN=',PREVTAIRCAN,' TAIRABOVE=', TAIRABOVE, ' TCAN2=',TCAN2 
-                        GOTO 1112
+                        GOTO 1111   ! Christina & vezy
                     ELSE
                         PREVTAIRCAN = TAIRNEW ! glm
                         PREVVPDCAN = VPDNEW ! glm       
@@ -2116,16 +2113,18 @@ END SUBROUTINE SUMDAILY
 
 SUBROUTINE  ITERTCAN(IHOUR, ITERTAIR, ITERTAIRMAX, NUMPNT, NOTARGETS, &
 			TCAN2, TLEAFTABLE, TAIR, PREVTAIRCAN, VPD, PREVVPDCAN, &
-			TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW)
+			TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW,ITERTAIRNOCONV, &
+            TSOILSURFACE,SOILTK,SOILTEMP)
 
 USE maestcom
 IMPLICIT NONE
 INTEGER ITERTAIR, ITERTAIRMAX, IHOUR, ITERTAIREND
-INTEGER IDIPT, IDTAR, NUMPNT, NOTARGETS
+INTEGER IDIPT, IDTAR, NUMPNT, NOTARGETS, ITERTAIRNOCONV
 REAL TCAN2, TLEAFTABLE(MAXT,MAXP)
 REAL TAIR(MAXHRS), PREVTAIRCAN, VPD(MAXHRS), PREVVPDCAN  
 REAL TAIRABOVE, WINDAH(MAXHRS), VPDABOVE
 REAL TAIRNEW, VPDNEW
+REAL TSOILSURFACE,SOILTK,SOILTEMP(MAXSOILLAY)
 
 ! when itertairmax = 1, no iteration on air temperature within the canopy
 IF (ITERTAIRMAX.LE.1) THEN
@@ -2138,7 +2137,8 @@ IF (ITERTAIRMAX.LE.1) THEN
 			DO IDTAR = 1,NOTARGETS
 				TLEAFTABLE(IDTAR,IDIPT)=TAIR(IHOUR)
 			ENDDO
-		ENDDO
+        ENDDO
+        ITERTAIR=1 ! Christina & vezt
 ELSE
 	! initialization of leaf and air temperature values
 	IF (ITERTAIR.EQ.0) THEN
@@ -2154,7 +2154,11 @@ ELSE
 		IF (PREVTAIRCAN.NE.0.0) THEN        
                     TAIR(IHOUR) = PREVTAIRCAN
                     VPD(IHOUR) = PREVVPDCAN
-		END IF
+                    TCAN2 = PREVTAIRCAN
+                    TLEAFTABLE(IDTAR,IDIPT)= PREVTAIRCAN
+        END IF
+        
+        ITERTAIRNOCONV=0    ! Still converging Christina & Vezy Nov 2016
 	END IF
 
 	IF (ITERTAIR.GE.1) THEN
@@ -2162,9 +2166,8 @@ ELSE
 		!VPD(IHOUR) = VPD(IHOUR) + (VPDNEW-VPD(IHOUR))/2
 		TAIR(IHOUR) = TAIRNEW   
 		VPD(IHOUR) = VPDNEW
+        ITERTAIRNOCONV=0
 	END IF
-
-	ITERTAIR = ITERTAIR + 1
             
 	! if we had reached itertairmax, taircan= tair from input
 	IF (ITERTAIR.EQ.ITERTAIRMAX) THEN
@@ -2177,8 +2180,15 @@ ELSE
 			DO IDTAR = 1,NOTARGETS
 				TLEAFTABLE(IDTAR,IDIPT) = TCAN2
             ENDDO
-		ENDDO
-	ENDIF
+        ENDDO
+        TSOILSURFACE = SOILTEMP(1)
+        SOILTK = SOILTEMP(1)
+        
+        ITERTAIRNOCONV = 1  ! No convergence Christina & Vezy Nov 2016
+        ITERTAIR = ITERTAIRMAX - 1 ! To be sure ITERTAIR can't be > ITERTAIRMAX
+    ENDIF
+    
+    ITERTAIR = ITERTAIR + 1
 
 ENDIF
 
