@@ -268,7 +268,7 @@ SUBROUTINE OPENMETF(ISTART,IEND,CAK,PRESSK,SWMIN,SWMAX,USEMEASET,DIFSKY,ALAT,TTI
                 ICOL = MHTIME
             ELSEIF (COLUMNS(I).EQ.'VMFD')  THEN
                 ICOL = MHMFD
-			ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
+            ELSEIF (COLUMNS(I).EQ.'RTHERM')  THEN  !TEST
                 ICOL = MHTHR
             ELSE
                 CALL SUBERROR('WARNING: Header includes unknown variable - ignored',&
@@ -1360,7 +1360,7 @@ SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
     IMPLICIT NONE
     INTEGER I
     REAL RADABV(MAXHRS,3),TAIR(MAXHRS),VPD(MAXHRS),FSUN(MAXHRS)
-    REAL EA,EMCLEAR,EMSKY(MAXHRS)
+    REAL EA,EMCLEAR,EMSKY(MAXHRS),SIGT4
     REAL, EXTERNAL :: TK
     REAL, EXTERNAL :: SATUR
     
@@ -1371,16 +1371,15 @@ SUBROUTINE THERMAL(TAIR,VPD,FSUN,RADABV,EMSKY)
         !        RADABV(I,3) = EMSKY*SIGMA*(TK(TAIR(I))**4)
 
         ! Monteith and Unsworth formula
-        !	  SIGT4 = SIGMA*(TK(TAIR(I))**4)
-        !	  EMCLEAR = 1.06*SIGT4 - 119.
-        !	  RADABV(I,3) = FSUN(I)*EMCLEAR + (1.-FSUN(I))*(0.84+0.16*EMCLEAR)
+        ! SIGT4 = SIGMA*(TK(TAIR(I))**4)
+        ! EMCLEAR = 1.06*SIGT4 - 119.
+        ! RADABV(I,3) = FSUN(I)*EMCLEAR + (1.-FSUN(I))*(0.84+0.16*EMCLEAR)
 
         ! BM 12/05: Am hybridising. Use Brutsaert et al for clear sky emission but
         ! Monteith and Unsworth correction for cloudy sky. 
         ! The 1.06 SIGT4 - 119 formula seems problematic in some conditions. 
         ! Also suspect I had correction incorrect - check this!!
         EA = SATUR(TAIR(I)) - VPD(I) !Old formula - see comments
-
         EMCLEAR = 0.642*(EA/TK(TAIR(I)))**(1./7.)
         EMSKY(I) = FSUN(I)*EMCLEAR + (1.-FSUN(I))*(0.84+0.16*EMCLEAR)
         RADABV(I,3) = EMSKY(I)*SIGMA*(TK(TAIR(I))**4)
@@ -1575,17 +1574,38 @@ SUBROUTINE GETWINDNEW(ZL,ZBC,RZ,LGP,NUMPNT,NOTREES,ZHT,WINDLAY)
     
     ! According to Van de Griend we can assumed that (ZW height of the roughness layer) :
     ALPHA1 = 1.5
-    ZW = ZPD2 + ALPHA1 * (TREEH-ZPD2)
+    ZW = ZPD2 + ALPHA1 * (TREEH-ZPD2) ! zw-h= 1.5l Raupach (1980)
     
+    IF(ZHT.GT.ZW) THEN
     ! Wind speed at the top of the canopy according to Van de Griend 1989 (eq 42)
-    WINDTOP = WINDSTAR/VONKARMAN * log((ZW-ZPD2)/Z0) -  &
+            WINDTOP = WINDSTAR/VONKARMAN * log((ZW-ZPD2)/Z0) -  &
                   WINDSTAR/VONKARMAN * (1-((TREEH-ZPD2)/(ZW-ZPD2)))
-
+    ELSE
+    ! WINDSPEED is already measured on top of canopy (in the roughness layer), no correction. RV 02/2017
+        WINDTOP = 1
+    ENDIF
+    
     ! We assumed a expenential decrease of wind speed with depth in the canopy according to Choudhury & Monteith 1988   
     ALPHA2 = 3.0
-    DO IPT = 1,NUMPNT
-        WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/TREEH -1))
-    ENDDO     
+   
+    IF (ZHT.GT.TREEH) THEN
+    ! If ZHT is indeed above tree canopy, reduce wind exponetially with depth. 
+        DO IPT = 1,NUMPNT
+            WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/TREEH -1))
+        ENDDO     
+    ELSE
+        ! If wind measurements were made below tree canopy (ZHT<TREEH), reduce wind exponetially below ZHT
+        ! and increase wind above ZHT (ALPHA= 0.25 above). This is made to have the possibility to use wind
+        ! measurements from within canopy (e.g. between Understory and tree canopy). RV 02/2017
+        DO IPT = 1,NUMPNT
+            IF (ZL(IPT).GE.ZHT)THEN
+                WINDLAY(LGP(IPT)) = WINDTOP * EXP(0.25 * (ZL(IPT)/ZHT -1))
+            ELSE
+                WINDLAY(LGP(IPT)) = WINDTOP * EXP(ALPHA2 * (ZL(IPT)/ZHT -1))
+            ENDIF    
+        ENDDO     
+    ENDIF
+    
     END SUBROUTINE GETWINDNEW
     
     

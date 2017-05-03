@@ -4,7 +4,7 @@ iohrly=0
 iotutd=9       	
 ioresp=0       	
 ipoints= 1	
-iowatbal=0       	
+iowatbal=1       	
 verbose= 2
 /	
 		
@@ -19,8 +19,8 @@ strfiles = 'str1.dat' 'str2.dat' 'str3.dat' 'str4.dat'
 	
 &dates	
 	
-startdate = '01/01/2015'	
-enddate = '01/01/2015'
+startdate = '01/01/15'	
+enddate = '01/01/15'
 	
 /	
 		

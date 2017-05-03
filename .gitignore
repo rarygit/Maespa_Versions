@@ -1,7 +1,11 @@
 **/Debug/
 **/Release/
 !.exe
-
+*.obj
+*.htm
+*.manifest
+*.mod
+*.suo
 
 # Windows image file caches
 Thumbs.db

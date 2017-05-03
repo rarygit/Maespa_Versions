@@ -52,13 +52,13 @@
 
 
 !**********************************************************************
-SUBROUTINE PSTRANSPIF(IDAY,IHOUR,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH,VPD,VMFD,PRESS,JMAX25,&
-                    IECO,EAVJ,EDVJ,DELSJ,VCMAX25,EAVC,EDVC,DELSC,TVJUP,TVJDN,THETA,AJQ,RD0, &
-                    Q10F,K10F,RTEMP,DAYRESP,TBELOW,MODELGS,WSOILMETHOD,EMAXLEAF,SOILMOISTURE,    &
-                    SMD1,SMD2,WC1,WC2,SOILDATA,SWPEXP,FSOIL,GSMIN,GNIGHT,G0,D0L,GAMMA,VPDMIN,G1,GK,WLEAF,NSIDES,   &
-                    VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,FHEAT, &
-                    TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,WEIGHTEDSWP,KTOT,HMSHAPE,PSIL,ETEST,ETDEFICIT,CI, &
-                    ISMAESPA,ISNIGHT,G02,G12,NEWTUZET)
+SUBROUTINE PSTRANSPIF(IDAY,IHOUR,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH,VPD,VMFD,PRESS,JMAX25,   &
+                    IECO,EAVJ,EDVJ,DELSJ,VCMAX25,EAVC,EDVC,DELSC,TVJUP,TVJDN,THETA,AJQ,RD0,Q10F,K10F,RTEMP, &
+                    DAYRESP,TBELOW,MODELGS,WSOILMETHOD,EMAXLEAF,SOILMOISTURE,SMD1,SMD2,WC1,WC2,SOILDATA,    &
+                    SWPEXP,FSOIL,GSMIN,GNIGHT,G0,D0L,GAMMA,VPDMIN,G1,GK,WLEAF,NSIDES,VPARA,VPARB,VPARC,     &
+                    VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,FHEAT,TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,       &
+                    WEIGHTEDSWP,KTOT,HMSHAPE,PSIL,ETEST,ETDEFICIT,CI,ISMAESPA,ISNIGHT,G02,G12,NEWTUZET,EV,  &
+                    drycan,CANOPY_STORE_I) !glm canopy evap
 !
 ! 'Interface' to PSTRANSP (new subroutine, Feb. 2011). 
 ! Calculates (numericall) the leaf water potential for the Tuzet model; 
@@ -84,6 +84,7 @@ SUBROUTINE PSTRANSPIF(IDAY,IHOUR,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,
     REAL PSILIN,PLANTK,TOTSOILRES,MINLEAFWP,CI
     REAL TMP,VPARA,VPARB,VPARC,VPDMIN,GK,ETDEFICIT
     REAL G02,G12
+    REAL EV,drycan,CANOPY_STORE_I !glm canopy evap
     INTEGER NEWTUZET
     LOGICAL ISMAESPA,ISNIGHT
 
@@ -99,7 +100,8 @@ SUBROUTINE PSTRANSPIF(IDAY,IHOUR,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,
                     Q10F,K10F,RTEMP,DAYRESP,TBELOW,MODELGS,WSOILMETHOD,EMAXLEAF,SOILMOISTURE,    &
                     SMD1,SMD2,WC1,WC2,SOILDATA,SWPEXP,FSOIL,GSMIN,G0,D0L,GAMMA,VPDMIN,G1,GK,WLEAF,NSIDES,   &
                     VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,FHEAT,TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,  &
-                    WEIGHTEDSWP,HMSHAPE,PSILIN,ETDEFICIT,ETEST, IDAY, IHOUR,G02,G12,NEWTUZET)        
+                    WEIGHTEDSWP,HMSHAPE,PSILIN,ETDEFICIT,ETEST, IDAY, IHOUR,G02,G12,NEWTUZET, &
+                    EV,drycan,CANOPY_STORE_I) !glm canopy evap
         ELSE
             PSILIN = WEIGHTEDSWP   ! Not entirely correct due to nighttime transpiration, but has no consequences.
         ENDIF
@@ -111,7 +113,8 @@ SUBROUTINE PSTRANSPIF(IDAY,IHOUR,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,
                     Q10F,K10F,RTEMP,DAYRESP,TBELOW,MODELGS,WSOILMETHOD,EMAXLEAF,SOILMOISTURE,    &
                     SMD1,SMD2,WC1,WC2,SOILDATA,SWPEXP,FSOIL,GSMIN,GNIGHT,G0,D0L,GAMMA,VPDMIN,G1,GK,WLEAF,NSIDES,   &
                     VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,FHEAT,TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,   &
-                    WEIGHTEDSWP,KTOT,HMSHAPE,PSILIN,PSIL,ETDEFICIT,ETEST,CI,ISMAESPA,ISNIGHT,G02,G12,NEWTUZET)
+                    WEIGHTEDSWP,KTOT,HMSHAPE,PSILIN,PSIL,ETDEFICIT,ETEST,CI,ISMAESPA,ISNIGHT,G02,G12,NEWTUZET, &
+                    EV,drycan,CANOPY_STORE_I) !glm canopy evap
     
 
 END SUBROUTINE PSTRANSPIF
@@ -124,7 +127,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
                     VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,FHEAT, &
                     TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,  &
                     WEIGHTEDSWP,KTOT,HMSHAPE,PSILIN,PSIL,ETDEFICIT,ETEST,CI,ISMAESPA,ISNIGHT, &
-                    G02,G12,NEWTUZET)
+                    G02,G12,NEWTUZET,EV,drycan,CANOPY_STORE_I) !glm canopy evap
 ! This subroutine calculates leaf photosynthesis and transpiration.
 ! These may be calculated by
 ! (1) assuming leaf temperature = air temperature, Cs = Ca and Ds = Da
@@ -151,6 +154,9 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     REAL GSC,ALEAF,RD,WEIGHTEDSWP,GBHF,GBH,GH,VMFD0,GBV,GSV,GV
     REAL ET,RNET,GBC,TDIFF,TLEAF1,FHEAT,ETEST,SF,PSIV,HMSHAPE
     REAL PSILIN,CI,VPARA,VPARB,VPARC,VPDMIN,GK,RD0ACC,ETDEFICIT
+    REAL EV, drycan, GVEV,CANOPY_STORE_I  !glm canopy evap
+    REAL TLEAF2,DELTATLEAFIN,DELTATLEAF,DELTATLEAF2 !glm secant method of convergence
+    
     LOGICAL ISMAESPA,ISNIGHT,FAILCONV
     INTEGER NEWTUZET
     REAL G02,G12 
@@ -184,6 +190,7 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     SLOPE = (SATUR(TAIR + 0.1) - SATUR(TAIR)) / 0.1
     ! Radiation conductance (mol m-2 s-1)
     GRADN = GRADIATION(TAIR,RDFIPT,TUIPT,TDIPT)
+    
     ! Boundary layer conductance for heat - single sided, forced convection
     GBHU = GBHFORCED(TAIR,PRESS,WIND,WLEAF)
 
@@ -191,6 +198,31 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ITER = 0  ! Counter for iterations - finding leaf temperature
 100 CONTINUE  ! Return point for iterations
 
+    
+!    TLEAF = TAIR
+!    TLEAF2 = TAIR+1 
+!    DELTATLEAF = 0.01     ! normally should run the code once with TLEAF initial values before
+!    DELTATLEAF2 = -0.1    ! normally should run the code once with TLEAF2 initial values before
+!    DELTATLEAFIN = 1.0
+!    
+!    ITERTLEAF = 0  ! Counter for iterations 
+!    DO WHILE (((ABS(DELTATLEAFIN).GT.(0.02)).OR.(ABS(DELTATLEAF).GT.(0.02))).AND.(ITERTLEAF.LE.ITERMAX))   
+!        
+!    !Secant method for convergence of TLEAF
+!   IF (DELTATLEAF.NE.DELTATLEAF2) THEN
+!    DELTATLEAFIN = (TLEAF2-TLEAF)*DELTATLEAF/(DELTATLEAF-DELTATLEAF2) !glm secant method        
+!    TLEAF2=TLEAF          ! xl=rtsec
+!    TLEAF=TLEAF+DELTATLEAFIN     ! rtsec = rtsec+dx
+!    DELTATLEAF2=DELTATLEAF    ! fl=f
+!   ELSE
+!        DELTATLEAFIN=0
+!        DELTATLEAF=0
+!        DELTATLEAF2=0
+!    ENDIF
+ 
+    
+    
+    
     IF(.NOT.ISNIGHT)THEN
     CALL PHOTOSYN(PAR,TLEAF,TMOVE,CS,RHLEAF,DLEAF,VMLEAF,JMAX25,IECO,EAVJ,EDVJ,DELSJ,VCMAX25,&
                     EAVC,EDVC,DELSC,TVJUP,TVJDN,THETA,AJQ,RD0,Q10F,K10F,RTEMP,DAYRESP,TBELOW,&
@@ -227,9 +259,9 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     
     ! Boundary layer conductance for heat - single sided, free convection
     GBHF = GBHFREE(TAIR,TLEAF,PRESS,WLEAF)
+    
     ! Total boundary layer conductance for heat
     GBH = GBHU + GBHF
-
     ! Total conductance for heat - two-sided
     GH = 2.*(GBH + GRADN)
     ! Total conductance for water vapour
@@ -241,48 +273,64 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     ! Boundary + stomatal conductance to water vapour
     GV = (GBV*GSV)/(GBV+GSV)
 
-    ! Call Penman-Monteith equation
-    ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
+    ! Call Penman-Monteith equation !(if leaf 100% dry)  !glm canopy evap
+    !ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
+    
+    !calcul 2 !glm
+    GAMMA = CPAIR*AIRMA*PRESS/LHV
+    IF (GV.GT.0.0) THEN
+        ET = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GV))
+        ET = ET/LHV
+        !print*,TLEAF,TAIR,VPD,GH,GV,ET2    
+    ELSE
+        ET = 0.0
+    ENDIF
+    
+    ! Call Penman-Monteith equation for evaporation of leaf surface water (if 100% wet leaf)  !glm canopy evap
+    GVEV = 1./(1./(1E09) + 1./GBV) !stomatal infinite conductance + boundary  !glm canopy evap
+    !EV = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GVEV)  !glm canopy evap
+    !calcul 2 !glm
+    GAMMA = CPAIR*AIRMA*PRESS/LHV
+    IF (GV.GT.0.0) THEN
+        EV = (CPAIR * AIRMA / GAMMA) * (SATUR(TLEAF) - (SATUR(TAIR) - VPD))/((1/GH)+(1/GVEV))
+        EV = EV/LHV
+    !    !print*,ET,ET2        
+    ELSE
+        EV = 0.0
+    ENDIF
+
+    !modify EV to be <= CANOPY_STORE_I; modification through change in drycan parameter, to allow a compensation with ET !glm canopy evap
+    IF (((1-drycan)*EV*SPERHR *18 * 1E-03).gt.CANOPY_STORE_I) THEN !to kg m-2 t-1       !glm canopy evap
+        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE_I/(SPERHR *18 * 1E-03))/EV))                              !glm canopy evap
+    ENDIF
 
     ! End of subroutine if no iterations wanted.
     IF (ITERMAX.EQ.0) GOTO 200
+    
 
     ! Otherwise, calculate new TLEAF, DLEAF, RHLEAF & CS
     GBC = GBH/GBHGBC
     IF(.NOT.ISNIGHT)THEN
         CS = CA - ALEAF/GBC
     ENDIF
-    TDIFF = (RNET - ET*LHV) / (CPAIR * AIRMA * GH)
-    TLEAF1 = TAIR + TDIFF/4 !divide by 4 to slow down convergence and avoid big changes
+    !TDIFF = (RNET - ET*LHV) / (CPAIR * AIRMA * GH)  
+    ! changed to weighted average between evap and transp in function of drycan ratio. Drycan computed at canopy scale (this is a limit) !glm canopy evap
+    TDIFF = (RNET - drycan*ET*LHV - (1-drycan)*EV*LHV) / (CPAIR * AIRMA * GH)  !glm canopy evap
     
-    ! Now recalculate boundary layer conductance, ET with new TLEAF
-    ! Helps convergence to TLEAF.
-    ! Boundary layer conductance for heat - single sided, free convection
-    GBHF = GBHFREE(TAIR,TLEAF1,PRESS,WLEAF)
+    TLEAF1 = TAIR + TDIFF/4 ! divide by 4 to slow down convergence and avoid big changes
+!    DELTATLEAF = TLEAF-(TAIR + TDIFF)
     
-    ! Total boundary layer conductance for heat
-    GBH = GBHU + GBHF
-
-    ! Total conductance for heat - two-sided
-    GH = 2.*(GBH + GRADN)
-    ! Total conductance for water vapour
-    GBV = GBVGBH*GBH
-    GSV = GSVGSC*GSC
-    GV = (GBV*GSV)/(GBV+GSV)
-
-    !  Call Penman-Monteith equation
-    ET = PENMON(PRESS,SLOPE,LHV,RNET,VPD,GH,GV)
-!IF (IHOUR.eq.24)     print*,'VPD',VPD, 'ET',ET,'GHV',GH,GV
     DLEAF = ET * PRESS / GV
     RHLEAF = 1. - DLEAF/SATUR(TLEAF1)
     VMLEAF = DLEAF/PRESS*1E-3
-
+    
     ! Check to see whether convergence achieved or failed
     IF (ABS(TLEAF - TLEAF1).LT.TOL/4) GOTO 200
 
     IF (ITER.GT.ITERMAX) THEN
         !WRITE(ERRORMESSAGE, '(I4,A,I2,A)') IDAY,'  ', IHOUR, ' FAILED CONVERGENCE IN PSTRANSP'
-        CALL SUBERROR(ERRORMESSAGE,IWARN,0)
+        !CALL SUBERROR(ERRORMESSAGE,IWARN,0)
+        !print*,TLEAF,TLEAF1,CS,PSIL
         FAILCONV = .TRUE.
 	    GOTO 200
     END IF
@@ -291,27 +339,39 @@ SUBROUTINE PSTRANSP(iday,ihour,RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH
     TLEAF = TLEAF1
     ITER = ITER + 1
     GOTO 100
-
+    
+!    ITERTLEAF = ITERTLEAF + 1 !glm secant method
+!    END DO !TLEAF WHILE LOOP !glm secant method
+    
+    
     ! Sensible heat flux
-200 FHEAT = RNET - LHV*ET
+!200 FHEAT = RNET - LHV*ET
+200 FHEAT = RNET - drycan*LHV*ET - (1-drycan)*LHV*EV ! glm canopy evap
     
     ! Transpiration minus supply by soil/plant (EMAX) must be drawn from plant reserve
     ETDEFICIT = (VPD/PATM) * GSV *1E03 - EMAXLEAF
     IF(ETDEFICIT.LT.0.0) ETDEFICIT = 0.0
     
-    ! Return ET,EI in umol m-2 s-1
-    ET = ET*1E6  
+    ! Return ET,EV in umol m-2 s-1
+    ET = ET*1E6
+    EV = EV*1E6 !glm canopy evap
+    
 
     ! Calculate leaf water potential
+    ! supposed to be the one of the dry part of the leaf !glm canopy evap!
     IF(ISMAESPA)THEN
-        ! Used to use ET without boundary layer; not sure why.
-        ETEST = 1E06 * (VPD/PATM) * GSV
-        
-!        PSIL = WEIGHTEDSWP - (ETEST/1000)/KTOT
-        PSIL = WEIGHTEDSWP - (ET/1000)/KTOT
+       ! Used to use ET without boundary layer; not sure why.
+       ! ETEST = 1E06 * (VPD/PATM) * GSV
+       ! PSIL = WEIGHTEDSWP - (ETEST/1000)/KTOT
+       ! PSIL = min(0.,WEIGHTEDSWP - (ET/1000)/KTOT) ! RV 04-2017. 
+        PSIL = WEIGHTEDSWP - (ET/1000)/KTOT ! RV 04-2017. 
+       ! PSIL can be positive when ET is negative (e.g. dew)
     ELSE
         PSIL = 0.0
     ENDIF
+    
+    ET = drycan*ET ! (output = actual reduced Transp)!glm canopy evap 
+    EV = (1-drycan)*EV !(output = actual reduced evaporation)!glm canopy evap 
     
     RETURN
     END SUBROUTINE PSTRANSP
@@ -365,6 +425,7 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
     REAL, EXTERNAL :: FPSIL
     REAL, EXTERNAL :: VJMAXWFN
 
+
     ! Calculate photosynthetic parameters from leaf temperature.
     GAMMASTAR = GAMMAFN(TLEAF,IECO)                   ! CO2 compensati
     KM = KMFN(TLEAF,IECO)                             ! Michaelis-Ment
@@ -387,9 +448,10 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
 
     ! Deal with extreme cases
     IF ((JMAX.LE.0.0).OR.(VCMAX.LE.0.0)) THEN
-        ALEAF = -RD
-        
+        ALEAF = -RD        
         GS = G0
+        ALEAF2 = -RD        
+        GS2 = G0
 
         RETURN
     END IF
@@ -445,8 +507,13 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
                 GSDIVA2 = (G12/ (CS -GAMMA)) * FPSIF
             END IF
         END IF
+           ! print*,'GSDIVA',GSDIVA,CS,GAMMA
 
         ! Following calculations are used for both BB & BBL models.
+        !-----------
+        !glm WITH G1
+        !-----------
+        
         ! Solution when Rubisco activity is limiting
         A = G0 + GSDIVA * (VCMAX - RD)
         B = (1. - CS*GSDIVA) * (VCMAX - RD) + G0 * (KM - CS)- GSDIVA * (VCMAX*GAMMASTAR + KM*RD)
@@ -476,51 +543,55 @@ SUBROUTINE PHOTOSYN(PAR,TLEAF,TMOVE,CS,RH,VPD,VMFD, &
 
         ALEAF = AMIN1(AC,AJ) - RD  ! Solution for Ball-Berry model
         GS = G0 + GSDIVA*ALEAF
+        !print*,'ALEAF',ALEAF,AC,AJ,RD
+        !-----------
+        !glm WITH G2
+        !-----------
+        GS2 = G02 + GSDIVA2*ALEAF !test to speed up
         
-        
-        ! if new gs model calculate the second possibility with different g0 and g1
-        IF (NEWTUZET.EQ.1) THEN
-            
-            ! For the same ALEAF could we have a higher stomatal conductance ?
-            GS2 = G02 + GSDIVA2*ALEAF
-            
-            IF (GS2.GT.GS) THEN
-                
-                ! Solution when Rubisco activity is limiting
-                A = G02 + GSDIVA2 * (VCMAX - RD)
-                B = (1. - CS*GSDIVA2) * (VCMAX - RD) + G02 * (KM - CS)- &
-                    GSDIVA2 * (VCMAX*GAMMASTAR + KM*RD)
-                C = -(1. - CS*GSDIVA2) * (VCMAX*GAMMASTAR + KM*RD) - G02*KM*CS
+        IF (GS2.GT.GS) THEN 
+        ! Solution when Rubisco activity is limiting
+        A = G02 + GSDIVA2 * (VCMAX - RD)
+        B = (1. - CS*GSDIVA2) * (VCMAX - RD) + G02 * (KM - CS)- &
+              GSDIVA2 * (VCMAX*GAMMASTAR + KM*RD)
+        C = -(1. - CS*GSDIVA2) * (VCMAX*GAMMASTAR + KM*RD) - G02*KM*CS
 
-                CIC = QUADP(A,B,C,IQERROR)
+        CIC = QUADP(A,B,C,IQERROR)
 
-                IF ((IQERROR.EQ.1).OR.(CIC.LE.0.0).OR.(CIC.GT.CS)) THEN
+        IF ((IQERROR.EQ.1).OR.(CIC.LE.0.0).OR.(CIC.GT.CS)) THEN
                     AC = 0.0
-                ELSE
+        ELSE
                     AC = VCMAX * (CIC - GAMMASTAR) / (CIC + KM)
-                END IF
+        END IF
  
-                ! Solution when electron transport rate is limiting
-                A = G02 + GSDIVA2 * (VJ - RD)
-                B = (1. - CS*GSDIVA2) * (VJ - RD) + G02 * (2.*GAMMASTAR - CS) &
+        ! Solution when electron transport rate is limiting
+        A = G02 + GSDIVA2 * (VJ - RD)
+        B = (1. - CS*GSDIVA2) * (VJ - RD) + G02 * (2.*GAMMASTAR - CS) &
                     - GSDIVA2 * (VJ*GAMMASTAR + 2.*GAMMASTAR*RD)
-                C = -(1. - CS*GSDIVA2) * GAMMASTAR * (VJ + 2.*RD) &
+        C = -(1. - CS*GSDIVA2) * GAMMASTAR * (VJ + 2.*RD) &
                     - G02*2.*GAMMASTAR*CS
-                CIJ = QUADP(A,B,C,IQERROR)
+        CIJ = QUADP(A,B,C,IQERROR)
 
-                AJ = VJ * (CIJ - GAMMASTAR) / (CIJ + 2.*GAMMASTAR)
-                IF (AJ-RD.LT.1E-6) THEN        ! Below light compensation point
+        AJ = VJ * (CIJ - GAMMASTAR) / (CIJ + 2.*GAMMASTAR)
+        IF (AJ-RD.LT.1E-6) THEN        ! Below light compensation point
                     CIJ = CS
                     AJ = VJ * (CIJ - GAMMASTAR) / (CIJ + 2.*GAMMASTAR)
-                END IF
+        END IF
 
-                ALEAF2 = AMIN1(AC,AJ) - RD  ! Solution for Ball-Berry model
-                GS2 = G02 + GSDIVA2*ALEAF2
-                        
+        ALEAF2 = AMIN1(AC,AJ) - RD  ! Solution for Ball-Berry model
+        GS2 = G02 + GSDIVA2*ALEAF2
+        
+        !-----------
+        !glm take the max
+        !-----------
+        IF (GS2.GT.GS) THEN                        
                 GS = GS2
                 ALEAF = ALEAF2
-            ENDIF
         ENDIF  ! new model gs
+        !-------------
+        
+        END IF !fin test
+                    
 
         ! Set nearly zero conductance (for numerical reasons).
         IF (GS.LT.GSMIN) GS = GSMIN
@@ -819,9 +890,8 @@ REAL FUNCTION ETCAN(WIND,ZHT,Z0HT,ZPD,PRESS,TAIR,RNET,VPD,GSCAN,STOCKING,TREEH,T
     REAL, EXTERNAL :: TK
 
     ! Get boundary layer conductance, GBCANMS give conductance in m s-1
-    !GB = GBCAN(WIND,ZHT,Z0HT,ZPD,PRESS,TAIR)
-
-        CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH,TOTLAI,GBCANMS1,GBCANMS2)
+!    GB = GBCAN(WIND,ZHT,Z0HT,ZPD,PRESS,TAIR)
+    CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH,TOTLAI,GBCANMS1,GBCANMS2)
     CMOLAR = PRESS / (RCONST * TK(TAIR))
     GB = GBCANMS1*CMOLAR    ! in mol m-2 s-1
         
@@ -982,7 +1052,7 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     
     REAL Cd, X, TOTLAI, ZPD2, TREEH, Z0, KH, ALPHA, Z0HT2
     REAL GBCANMS1, GBCANMS2, GBCANMSINI, GBCANMSROU
-    REAL ALPHA1, WINDSTAR, ZW, COAT, GBCANMS3,Z0H
+    REAL ALPHA1, WINDSTAR, ZW, COAT, GBCANMS3,Z0H,GBCANMS1MIN
     
     ! In this model, we assumed 2 aerodynamic conductances in series
     ! 1) from the atmosphere to the canopy, based on Van de Griend 1989
@@ -993,7 +1063,12 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     ! Formula from Jones 1992 p 68, aerodynamic conductance air-canopy - air, adapted from the CASTANEA model (Dufrene et al., 2005)
     ZPD2 = 0.75 * TREEH
     Z0 = 0.1 *  TREEH
-
+    
+    ! RV: Observations indicate that z* lies 1–2 times the height of the canopy above the canopy (Garratt 1992, Harman&Finnigan 2007).
+    ! In their paper z* is the height of the roughness sublayer (not even the ZHT). So ZHT must be at least above TREEH.
+    IF (ZHT.LE.TREEH) THEN
+        ZHT= TREEH*1.1
+    ENDIF    
     ! Aerodynamic conductance between the atmosphere and the canopy
     ! Reference Wind used in the conductance calculation
     ! (this is ustar, the friction velocity)
@@ -1007,25 +1082,28 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
     
     ! Aerodynamic conductance in the inertial sublayer (Van de Griend 1989)
     GBCANMSINI = WINDSTAR*VONKARMAN /(LOG((ZHT - ZPD2)/(ZW - ZPD2)))
-    
     ! Aerodynamic conductance in the roughness layer
     ! The roughness layer is located between TREEH and a height ZW, according to 
-    !GBCANMSROU = WINDSTAR*VONKARMAN * ((ZW - TREEH)/(ZW - ZPD2))
+    ! GBCANMSROU = WINDSTAR*VONKARMAN * ((ZW - TREEH)/(ZW - ZPD2))
     GBCANMSROU = WINDSTAR*VONKARMAN / ((ZW - TREEH)/(ZW - ZPD2)) !glm 03/2016
     
     ! Total aerodynamic conductance between the canopy and the atmosphere
+    GBCANMS1MIN = 0.0123 ! RV, GBCANMS1 for WIND= 0.035 and CANOPY HEIGHT at 25 m
     GBCANMS1 = 1/ (1/GBCANMSINI + 1/GBCANMSROU)
-            
+    IF (GBCANMS1.LE.GBCANMS1MIN) THEN
+        GBCANMS1 = GBCANMS1MIN
+    ENDIF
+           
     ! Aerodynamic conductance between the soil surface to the the canopy, 2nd conductance term from choudhury et al. 1988   
     ! based on an exponential decrease of wind speed with height
     ALPHA = 2
     Z0HT2 = 0.01
 
-    ! Assuming uniform vegetation, the aerodinamic conductivity at the top of the canopy KH,
+    ! Assuming uniform vegetation, the aerodynamic conductivity at the top of the canopy KH,
     ! and following Van de Griend 1989
     KH = ALPHA1 * VONKARMAN * WINDSTAR * (TREEH - ZPD2) 
 
-    ! Aerodynamic conductance soir-air below canopy according to Chourdhury et al., 1988
+    ! Aerodynamic conductance soil-air below canopy according to Chourdhury et al., 1988
     GBCANMS2 = ALPHA * KH / ( TREEH * exp(ALPHA) * (exp(-ALPHA * Z0HT2/TREEH)  -  exp(-ALPHA * (ZPD2+Z0) / TREEH) ) )
 
      ! 2nd alternative to GBCANMS1
@@ -1040,7 +1118,8 @@ SUBROUTINE GBCANMS(WIND,ZHT,Z0HT,ZPD, TREEH, TOTLAI, GBCANMS1, GBCANMS2)
 !      
 !        GBCANMS2 = 1/  ( log((ZHT-ZPD2)/Z0)/(WIND*VONKARMAN**2) * (log((ZHT-ZPD2)/(TREEH-ZPD2)) +  &
 !               (TREEH/(COAT*(TREEH-ZPD2)))*   (exp(COAT*(1-(ZPD2+Z0H)/TREEH))- 1)))     
-
+!    GBCANMS1=0.02
+!    GBCANMS2=0.01
     
     RETURN
 
@@ -1235,7 +1314,7 @@ SUBROUTINE PSILFIND(RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH,VPD,VMFD,P
                     Q10F,K10F,RTEMP,DAYRESP,TBELOW,MODELGS,WSOILMETHOD,EMAXLEAF,SOILMOISTURE,    &
                     SMD1,SMD2,WC1,WC2,SOILDATA,SWPEXP,FSOIL,GSMIN,G0,D0L,GAMMA,VPDMIN,G1,GK,WLEAF,NSIDES,   &
                     VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,FHEAT,TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP,  &
-                    WEIGHTEDSWP,HMSHAPE,PSILIN,ETDEFICIT,ETEST,iday,ihour,G02,G12,NEWTUZET)
+                    WEIGHTEDSWP,HMSHAPE,PSILIN,ETDEFICIT,ETEST,iday,ihour,G02,G12,NEWTUZET,EV,drycan,CANOPY_STORE_I) !glm canopy evap
                     
 !**********************************************************************
         USE maestcom
@@ -1258,6 +1337,7 @@ SUBROUTINE PSILFIND(RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH,VPD,VMFD,P
         REAL PSILIN,T1,T2,XACC,GK,TMP,VPDMIN
         REAL EXTRAPARS(EXTRAPARDIM)
         REAL G02,G12,GSMIN
+        REAL EV,drycan,CANOPY_STORE_I !glm canopy evap
         INTEGER NEWTUZET
         INTEGER EXTRAINT(10)
         REAL, EXTERNAL :: ZBRENT
@@ -1337,6 +1417,8 @@ SUBROUTINE PSILFIND(RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH,VPD,VMFD,P
         EXTRAPARS(58) = G12
         EXTRAPARS(59) = GSMIN
         EXTRAPARS(60) = ETDEFICIT
+        EXTRAPARS(61) = drycan
+        EXTRAPARS(62) = CANOPY_STORE_I
         
         ! Set bounds for root-finding
         T1 = -100.0
@@ -1346,7 +1428,6 @@ SUBROUTINE PSILFIND(RDFIPT,TUIPT,TDIPT,RNET,WIND,PAR,TAIR,TMOVE,CA,RH,VPD,VMFD,P
         XACC = 1E-03
         
         PSILIN = ZBRENT(PSILOBJFUN,T1,T2,XACC,EXTRAPARS,EXTRAINT)
-
 
 END
 
@@ -1377,6 +1458,7 @@ REAL FUNCTION PSILOBJFUN(PSILIN, EXTRAPARS, EXTRAINT)
         REAL ET,RNET,GBC,TDIFF,TLEAF1,FHEAT,ETEST,SF,PSIV,HMSHAPE
         REAL PSILIN,TOTSOILRES,PLANTK,MINLEAFWP,CI,GK,ETDEFICIT
         REAL VPARA,VPARB,VPARC,VPDMIN,GNIGHT
+        REAL EV,drycan,CANOPY_STORE_I !glm canopy evap
         LOGICAL ISMAESPA,ISNIGHT
         integer iday,ihour, NEWTUZET
         REAL G02,G12
@@ -1453,6 +1535,8 @@ REAL FUNCTION PSILOBJFUN(PSILIN, EXTRAPARS, EXTRAINT)
           G12 = EXTRAPARS(58)
           GSMIN = EXTRAPARS(59)
           ETDEFICIT = EXTRAPARS(60)
+          drycan  = EXTRAPARS(61)
+          CANOPY_STORE_I  = EXTRAPARS(62)
           
           ISMAESPA = .TRUE.
           ISNIGHT = .FALSE.
@@ -1468,8 +1552,9 @@ REAL FUNCTION PSILOBJFUN(PSILIN, EXTRAPARS, EXTRAINT)
              SMD1,SMD2,WC1,WC2,SOILDATA,SWPEXP,FSOIL,GSMIN,GNIGHT,G0,D0L,GAMMA,VPDMIN,G1,GK,WLEAF,NSIDES,   &
              VPARA,VPARB,VPARC,VFUN,SF,PSIV,ITERMAX,GSC,ALEAF,RD,ET,FHEAT, &
              TLEAF,GBH,PLANTK,TOTSOILRES,MINLEAFWP, WEIGHTEDSWP,KTOT,HMSHAPE,PSILIN,PSIL,ETDEFICIT,ETEST,CI,ISMAESPA,ISNIGHT,&
-             G02,G12,NEWTUZET)
+             G02,G12,NEWTUZET,EV,drycan,CANOPY_STORE_I) !glm canopy evap
 
-        PSILOBJFUN = PSILIN - PSIL
+        PSILOBJFUN = (PSILIN - PSIL)**2
+        !print*,'PSILOBJFUN',ihour,PSILIN,PSIL,PSILOBJFUN
 
 END

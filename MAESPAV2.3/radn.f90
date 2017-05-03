@@ -1344,12 +1344,11 @@ END SUBROUTINE EXDIFF
         DO J = 1,NOAGEC
             BETA1 = BETA1 + BETA(BPT(1,J),BPT(2,J),BPT(3,J),BPT(4,J),RCH) * PROP(J)
         END DO
-
+        
         DFT = BETA1*FOLTQ/(TRD*TRD*RZQ)
-
+        
         IF (JLEAF.EQ.1) THEN
-          DFT = DFT/PI
-
+            DFT = DFT/PI
 ! Find beta in horizontal direction
         ELSE IF (JLEAF.EQ.2) THEN
           XX = X1 + (REAL(I)-0.5)* (X2-X1)/20.0 - DXTQ
@@ -1379,7 +1378,7 @@ END SUBROUTINE EXDIFF
         ENDIF
 
         SS = SS + DFT*PATH/20.0
-
+        
   100 CONTINUE
 
       RETURN
@@ -1393,7 +1392,11 @@ END SUBROUTINE EXDIFF
 ! this subroutine is used to calculate the pathlength inside all
 ! trees around the tree we do all these calculations for
 !**********************************************************************
-
+! RXQ/RYQ is indivradx/y ; RZQ is indivhtcrown ; ZBCQ is indivhttrunk
+! DXTQ/DYTQ are xycoords of the individual, DZTQ  is soil height 
+! compared to X0/Y0 (depending on slope) ;
+! XPP/YPP/ZPP are X/Y/Z coordinates of the voxel.      
+      
       USE maestcom
       IMPLICIT NONE
       INTEGER JSHAPE,IFLAG,ISITU
@@ -2034,7 +2037,7 @@ END SUBROUTINE EXDIFF
           DIFUP = ABS(TU(IPT)-RTA(ILAYER))
           IF (DIFMU.GE.DIFUP) GO TO 200
           Z1 = ILAYER - 1
- !         print*, Z1, ILAYER, NLAY, DIFUP
+ 
           GO TO 290
 200     DIFMU = DIFUP
         Z2 = NLAY
@@ -2945,7 +2948,10 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
         RGLOBABV = RGLOBABV + RADABV(IHOUR,J)
     END DO
 
-    FCOVER=MIN(MAX(TOTLAI/3.5,0.),1.) !glm test 
+      
+    FCOVER= 1 ! RV 12/12/2016 
+    ! FCOVER=MIN(MAX(TOTLAI/4.5,0.),1.) !glm test 
+    
     ! Lost scattered radiation
     ! Take the average across the trees
     SCLOSTTOT_tree = SUM(SCLOSTTREE(1:NOTARGETS,1:2)) / NOTARGETS
@@ -2953,11 +2959,14 @@ SUBROUTINE GETRGLOB(IHOUR,SCLOSTTREE,THRAB,RADABV, &
     SCLOSTTOT2_tree = SUM(SCLOSTTREE(1:NOTARGETS,2)) / NOTARGETS
     SCLOSTTOT3_tree = SUM(SCLOSTTREE(1:NOTARGETS,3)) / NOTARGETS !glm test proportion fcover
     
+    ! FCOVER=MIN(MAX(TOTLAI/4.5,0.),1.) !glm test
+    
     !glm: test to add the proportion of radiation from soil
     ! Soil emission
     SCLOSTTOT=(FCOVER)*SCLOSTTOT_tree + (1-FCOVER)*(RHOSOL(1)*RADABV(IHOUR,1)+RHOSOL(2)*RADABV(IHOUR,2))
     SCLOSTTOT1=(FCOVER)*SCLOSTTOT1_tree + (1-FCOVER)*(RHOSOL(1)*RADABV(IHOUR,1))
     SCLOSTTOT2=(FCOVER)*SCLOSTTOT2_tree + (1-FCOVER)*(RHOSOL(2)*RADABV(IHOUR,2))
+    
     SCLOSTTOT3 = (FCOVER)*SCLOSTTOT3_tree + (1-FCOVER)*(ESOILFUN(TSOIL)+ RHOSOL(3)*RADABV(IHOUR,3))
     !print*,'TH',FCOVER,SCLOSTTOT3_tree,SCLOSTTOT3,TSOIL
     !print*,'SCLOSTTOT',SCLOSTTOT_tree,SCLOSTTOT,(RHOSOL(1)*RADABV(IHOUR,1)+RHOSOL(2)*RADABV(IHOUR,2))

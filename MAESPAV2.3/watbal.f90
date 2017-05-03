@@ -198,7 +198,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL SOILMOISTURE,ROOTRESIST,ROOTRESFRAC,ROOTRAD,TOTLAI
       REAL WIND,ZHT,Z0HT,WEIGHTEDSWP,TOTSOILRES
       REAL ZBC(MAXT),RZ(MAXT), EXTWIND, GBCANMS1
-      REAL TREEH,ZPD    ! for aerodynamic conductance calculation
+      REAL TREEHAVG,ZPD    ! for aerodynamic conductance calculation
       INTEGER J, NOTREES
       INTEGER IWATTABLAYER,ISIMWATTAB
       
@@ -265,9 +265,12 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
     ! assuming turbulent transfer (so that conductance is the same for
     ! momentum, heat and mass transfer (Jones 1992)).
     ! average canopy height calculation
-      TREEH = (sum(ZBC(1:NOTREES)) + sum(RZ(1:NOTREES)) ) / NOTREES
+    TREEHAVG = (sum(ZBC(1:NOTREES)) + sum(RZ(1:NOTREES)) ) / NOTREES
+    ! RV: changed TREEH to TREEHAVG because TREEH is already computed in 
+    ! maespa.f90 and is the maximum tree height (to compute air to canopy
+    ! conductance).
           
-      CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEH, TOTLAI, GBCANMS1, GAMSOIL)
+      CALL GBCANMS(WIND,ZHT,Z0HT,ZPD,TREEHAVG, TOTLAI, GBCANMS1, GAMSOIL)
 
       RETURN
       END
@@ -289,7 +292,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                               DRYTHICKMIN,DRYTHICK,QEMM,OVERFLOW, &
                               WATERGAIN,WATERLOSS,PPTGAIN,KEEPWET, &
                               EXPINF,WS,WR,PSIE,ALPHARET,NRET,RETFUNCTION,SOILWP,&
-                              IWATTABLAYER,ISIMWATTAB,PLATDRAIN,WATCAPIL,TREEH,TOTLAI)
+                              IWATTABLAYER,ISIMWATTAB,PLATDRAIN,WATCAPIL,TREEH,TOTLAI, &
+                              EVMM,EVMMSPEC,drycan) !glm canopy evap
 
 ! Do water balance for layered soil.
 ! Replaces subroutines WATERFLUXES and WATERTHERMAL in SPA
@@ -326,6 +330,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL WATERGAINCAPIL(MAXSOILLAY), SOILWP(MAXSOILLAY)
         REAL LDRAIN(MAXSOILLAY),PLATDRAIN, WATCAPIL
         REAL TREEH, TOTLAI
+        REAL  EVMM,EVMMSPEC(MAXSP),drycan !glm canopy evap
         
 !       Conversions
         SOILTC = SOILTK - FREEZE
@@ -362,7 +367,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                             VPDPA,THROUGHFALL, &
                             RUTTERB,RUTTERD,MAXSTORAGE, &
                             CANOPY_STORE, SURFACE_WATERMM, &
-                            EVAPSTORE, DRAINSTORE,TREEH,TOTLAI)
+                            EVAPSTORE, DRAINSTORE,TREEH,TOTLAI, &
+                            EVMM,drycan) !glm canopy evap
         ENDIF
 
 !       Calculates the thickness of the top dry layer (if any).
@@ -371,7 +377,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                                NLAYER,LAYTHICK,DRYTHICKMIN,DRYTHICK)
 
 !       Option to keep soil wet, also keep DRYTHICK = 0
-        IF(KEEPWET.EQ.1)DRYTHICK = 0.001
+        IF(KEEPWET.EQ.1) DRYTHICK = 0.001
 
 !       From which layer is soil evaporation withdrawn?
 !       Note that it currently can only come from 1st or 2nd layer!
@@ -758,7 +764,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       ! Soil heat flux (flux of heat out of layer 1 into layer 2).
       ! SoilTK = Temperature jsut below drythick, SOILTK2 = T at the bottom of the first layer.
       !QC = -THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 
-      QC = THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 ! glm : QC positive if downward flux
+      QC = THERMCOND1 * (SOILTK - SOILTK2)/LAYTHICK1 ! glm 
 
       ! Latent heat flux (W m-2) (<0 = evaporation)
       QE = QEFLUX(SOILTK,TAIRK,VPDKPA,POREFRAC1,SOILWP1, &
@@ -766,17 +772,22 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
       ! Thermal conductivity of the dry layer (W/m/K)
       ! Note that as we assumed FRACWATER = 0. in this thin dry layer, the only parameter required is POREFRAC
-      ! If DRYTHERM lower than 0, it was not an input, so it has to be recalculated.   
+      ! If DRYTHERM lower than 0, it was not an input, so it has to be recalculated.
+      ! RV: set Porefrac always equal to 0.35 because it gives strange values with high porefrac.
+      ! Furthermore, DRYTHERM is used to compute the soil surface temperature, in which the porefrac may be 
+      ! different than the porefrac from the first layer. NB: Choudhury & Monteith 1988 took 0.5 though.
       IF (DRYTHERM.LT.0.) THEN
-          DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., POREFRAC1,4.,0.1,3)
+          ! DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., POREFRAC1,4.,0.1,3)
+          DRYTHERM = THERMCONDFUN(1, SOILWP1, 0., 0.35,4.,0.1,3)
       ENDIF 
-      
       ! Note: sensible heat flux is above the dry layer, latent heat flux below the dry layer.
-      TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
 
+      !TSOILSURFACE = SOILTK - (QE + QC) *DRYTHICK / DRYTHERM
+      TSOILSURFACE = SOILTK + (QE + QC) *DRYTHICK / DRYTHERM !glm 15/03/2017
+      
       ! Sensible heat flux (W m-2) calculated from soil surface above the dry thick layer (Choudhury et al. 1988)
       !QH = CPAIR * RHO * GAMSOIL * (TAIRK - TSOILSURFACE)    
-      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK) ! QH positive when upward flux   
+      QH = CPAIR * RHO * GAMSOIL * (TSOILSURFACE - TAIRK)   
 
       ! No soil evap if surface is frozen
       IF(SOILTK.LE.FREEZE)QE = 0.
@@ -1196,7 +1207,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                                   TAIRC,RNET,VPDPA,THROUGHFALL, &
                                   RUTTERB,RUTTERD,MAXSTORAGE, &
                                   CANOPY_STORE, SURFACE_WATERMM, &
-                                  EVAPSTORE, DRAINSTORE,TREEH,TOTLAI)
+                                  EVAPSTORE, DRAINSTORE,TREEH,TOTLAI, &
+                                  EVMM, drycan) !glm canopy evap
 
 ! Determines canopy water storage (CANOPY_STORE) and water reaching the
 ! soil surface (SURFACE_WATERMM), by integrating the function CANSTOR.
@@ -1215,6 +1227,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL CANOPY_STORE, SURFACE_WATERMM, EVAPSTORE
         REAL DRAINSTORE,X1,X2,HMIN,H1,EPS,DXSAV
         REAL CANSTORPREV,DELTASTORE,TREEH,TOTLAI
+        REAL EVMM,drycan !glm canopy evap
         
         EXTERNAL CANSTOR
         REAL, EXTERNAL :: RKQS
@@ -1249,6 +1262,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         EXTRAPARS(13) = VPDPA
         EXTRAPARS(14) = TREEH
         EXTRAPARS(15) = TOTLAI
+        EXTRAPARS(16) = EVMM !glm canopy evap
 
         ! Empty store if it's tiny.
         IF(CANOPY_STORE.LT.1E-6*MAXSTORAGE)CANOPY_STORE = 0.
@@ -1270,8 +1284,12 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         ! Get wet evaporation and canopy drainage
         DELTASTORE = CANOPY_STORE - CANSTORPREV
         DRAINSTORE = SURFACE_WATERMM - THROUGHFALL*PPT
-        EVAPSTORE = (1-THROUGHFALL)*PPT - DELTASTORE - DRAINSTORE
+        EVAPSTORE = (1-THROUGHFALL)*PPT - DELTASTORE - DRAINSTORE !result with the EVMM input !glm canopy evap
 
+        !computation of the ratio of dry canopy, approximated as CANSTOR/MAXSTORE !glm canopy evap
+        
+        drycan = MIN(1.0,MAX(0.0,1-(CANOPY_STORE/(MAXSTORAGE*TOTLAI))))
+        
         RETURN
         END
 
@@ -1294,6 +1312,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         REAL NUMMIN,ADDSTORE,ADDGROUND,RUTTERA
         REAL EVAPSTORE,DRAINSTORE
         REAL TREEH, TOTLAI
+        REAL EVMM !glm canopy evap
         
         THROUGHFALL = EXTRAPARS(1)
         RUTTERB     = EXTRAPARS(2)
@@ -1310,6 +1329,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         VPDPA   = EXTRAPARS(13)
         TREEH   = EXTRAPARS(14)
         TOTLAI   = EXTRAPARS(15)
+        EVMM    = EXTRAPARS(16) !glm canopy evap
 
         ! minutes per timestep
         NUMMIN = SPERHR / 60
@@ -1320,11 +1340,13 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         ! rate of input of water to ground
         ADDGROUND = THROUGHFALL * PPT
 
-        ! Wet evaporation rate (returns EVAPSTORE).
-        CALL WETEVAP(WIND,ZHT,Z0HT,ZPD, &
-                           PRESSPA,TAIRC,RNET, &
-                           VPDPA,Y(1),MAXSTORAGE, &
-                           EVAPSTORE,PPT,TREEH,TOTLAI)
+        
+        ! Wet evaporation rate (returns EVAPSTORE).! not necessary anymore, computation done in the IPT loop !glm canopy evap
+        !CALL WETEVAP(WIND,ZHT,Z0HT,ZPD, &
+        !                   PRESSPA,TAIRC,RNET, &
+        !                   VPDPA,Y(1),MAXSTORAGE, &
+        !                   EVAPSTORE,PPT,TREEH,TOTLAI)
+               
 
         ! Drainage from canopy store (Rutter et al. 1975)
         ! RUTTERB is in mm  min-1.
@@ -1339,7 +1361,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 
         ! Derivatives returned to ODEINT.
         ! change in canopy storage
-        DYDT(1) = ADDSTORE - DRAINSTORE - EVAPSTORE
+        !DYDT(1) = ADDSTORE - DRAINSTORE - EVAPSTORE
+        DYDT(1) = ADDSTORE - DRAINSTORE - EVMM !glm canopy evap
 
         ! addition to soilwater
         DYDT(2) = ADDGROUND + DRAINSTORE
@@ -1494,7 +1517,6 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                         DRYTHICK = MAX(DRYTHICKMIN,WETTINGTOP(AR1B))
                 ENDIF
         ENDIF
-
         
         RETURN
         END
@@ -2005,7 +2027,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
              I = 2
 
            ! loop for all x-dimension nodes, except first and last.
-           DO WHILE (I .LT. (NLAYER+1)) !+1: SOILTK is the soil temperature below the drythick, SOILTEMP(2) is the soil temperature of the first layer M. Christina
+           DO WHILE (I .LT. (NLAYER+1)) !+1: SOILTK is the soil temperature above the drythick, SOILTEMP(2) is the soil temperature of the first layer M. Christina
 
            ! Thermal conductivity, w m-1 k-1 is converted to j m-1 k-1 t
            TDIFFUSE = SPERHR * THERMCOND(I) / VOLHC(I)
@@ -2085,10 +2107,9 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 ! Unsaturated component
         SR = FRACWATER / POREFRAC
         KE = EXP(ALPHA*(1-SR**(ALPHA-1.33)))
-
 ! Combined (W m-1 K-1).
         THERMCONDFUN = (WETLAMBDA - DRYLAMBDA)*KE + DRYLAMBDA
-
+        
         RETURN
         END
 
@@ -2125,7 +2146,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                          PRESS,TAIR,VPD,ETMM,ETUSMM,ETMMSPEC,TREEH, &
                          RGLOBUND1,&
                          RGLOBUND2,DOWNTHAV,SCLOSTTOT3, &
-                         TSOIL,RHOSOL)
+                         TSOIL,RHOSOL,FH2OEV,EVMM,EVMMSPEC) !glm canopy evap
                       
 ! Scale up individual tree transpiration and radiation interception to
 ! a per m2 basis for use in water/heat balance calculations.
@@ -2152,7 +2173,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
     REAL ETUSMM,FH2OUS,WTOT,TREEH, ETMMSPEC(MAXSP)
     REAL RGLOBUND1,RGLOBUND2,DOWNTHAV
     REAL TSOIL,RHOSOL(3) !glm ajout pour thermup
-    
+    REAL EVMM,FH2OEV(MAXT,MAXHRS),WTOTEV, EVMMSPEC(MAXSP),TOTSPECEV !glm canopy evap
 
 ! conversion to kg m-2 t-1
             CONV = SPERHR * 1E-06 * 18 * 1E-03 
@@ -2206,14 +2227,17 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
         DO ISPEC=1,NOSPEC
             
             WTOT = 0.0
+            WTOTEV = 0.0 !glm canopy evap
             DO I=1,NOTARGETS
               IF(ISPECIES(ITARGETS(I)).EQ.ISPEC)THEN
                  WTOT = WTOT + FH2O(I,IHOUR)
+                 WTOTEV = WTOTEV + FH2OEV(I,IHOUR) !glm canopy evap
               ENDIF
               
             ENDDO
              
             ETMMSPEC(ISPEC) = WTOT * CONV / PLOTAREA
+            EVMMSPEC(ISPEC) = WTOTEV * CONV / PLOTAREA !glm canopy evap
         
         ENDDO
       
@@ -2236,12 +2260,15 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       
           ! Total water use, based on FH2O (not recalculated!)
           WTOT = 0.0
+          WTOTEV = 0.0 !glm canopy evap
           DO ITAR=1,NOTARGETS
               WTOT = WTOT + FH2O(ITAR,IHOUR)
+              WTOTEV = WTOTEV + FH2OEV(ITAR,IHOUR) !glm canopy evap
           ENDDO
         
           ! Simple conversion
           ETMM = WTOT * CONV / PLOTAREA
+          EVMM = WTOTEV * CONV / PLOTAREA !glm canopy evap
       
       ENDIF
 
@@ -2282,20 +2309,26 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
             
           ! Average water use per tree, based on FH2O (not recalculated!)
           WTOT = 0.0
+          WTOTEV = 0.0 !glm canopy evap
           DO ITAR=1,NOTARGETS
               WTOT = WTOT + TARGETFOLS(ITAR) * FH2O(ITAR,IHOUR)
+              WTOTEV = WTOTEV + TARGETFOLS(ITAR) * FH2OEV(ITAR,IHOUR) !glm canopy evap
           ENDDO
-          WTOT = WTOT / TOTLATAR
+          WTOT = WTOT / TOTLATAR 
+          WTOTEV = WTOTEV / TOTLATAR !glm canopy evap
           
           ! Correct for leaf area difference between target trees and all trees in stand
           IF(TREELAMEAN.GT.0)THEN
               WTOT = WTOT * (ALLTREELAMEAN / TREELAMEAN)
+              WTOTEV = WTOTEV * (ALLTREELAMEAN / TREELAMEAN) !glm canopy evap
           ELSE
               WTOT = 0.0
+              WTOTEV = 0.0 !glm canopy evap
           ENDIF
         
           ! Convert from mol tree-1 s-1 to kg m-2 t-1.
           ETMM = WTOT * CONV * STOCKING
+          EVMM = WTOTEV * CONV * STOCKING !glm canopy evap
          
      ENDIF
       
@@ -2304,13 +2337,16 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
 ! total ET into species components (needed for multiple rooting layers).
           IF(NOSPEC.GT.1)THEN
                 TOTSPECET = SUM(ETMMSPEC(1:NOSPEC))
+                TOTSPECEV = SUM(EVMMSPEC(1:NOSPEC)) !glm canopy evap
                 IF(TOTSPECET.GT.0.0)THEN
                     DO I=1,NOSPEC
                         ETMMSPEC(I) = ETMMSPEC(I) * ETMM / TOTSPECET
+                        EVMMSPEC(I) = EVMMSPEC(I) * EVMM / TOTSPECEV !glm canopy evap
                     ENDDO
                 ENDIF
           ELSE
                 ETMMSPEC(1) = ETMM    
+                EVMMSPEC(1) = EVMM  !glm canopy evap   
           ENDIF
         
       
@@ -2387,7 +2423,8 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
                        QH,QE,QN,QC,RADINTERC, &
                        WSOILMEAN,WSOILROOTMEAN,SWPMEAN,PPTTOT,ETMMTOT,ETMEASTOT, &
                        DISCHARGETOT,SOILEVAPTOT,FSOILMEAN,TFALLTOT, &
-                       QHTOT,QETOT,QNTOT,QCTOT,RADINTERCTOT)
+                       QHTOT,QETOT,QNTOT,QCTOT,RADINTERCTOT, &
+                       EVMM,EVMMTOT) !glm canopy evap
 
 ! Make daily water balance output file.
 !**********************************************************************
@@ -2402,6 +2439,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       REAL DISCHARGETOT,SOILEVAPTOT,FSOILMEAN,TFALLTOT
       REAL QHTOT,QETOT,QNTOT,QCTOT,RADINTERCTOT
       REAL CONVERT,SWPMEAN,WEIGHTEDSWP
+      REAL EVMM,EVMMTOT !glm canopy evap
 
       ! Sum fluxes that are hourly arrays:
       ETMEASTOT = SUM(ETMEAS(1:KHRS))
@@ -2411,6 +2449,7 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
       WSOILROOTMEAN = WSOILROOTMEAN + WSOILROOT / REAL(KHRS)
       SWPMEAN = SWPMEAN + WEIGHTEDSWP / REAL(KHRS)
       ETMMTOT = ETMMTOT + ETMM
+      EVMMTOT = EVMMTOT + EVMM !glm canopy evap
       DISCHARGETOT = DISCHARGETOT + DISCHARGE
       SOILEVAPTOT = SOILEVAPTOT + SOILEVAP
       FSOILMEAN = FSOILMEAN + FSOIL1 / REAL(KHRS)
@@ -2430,8 +2469,9 @@ SUBROUTINE CALCSOILPARS(NLAYER,NROOTLAYER,ISPEC,SOILWP,FRACWATER, &
     
 !**********************************************************************
 
-SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, TAIRNEW, VPDNEW,RHNEW,&
-                         WIND, ZPD, ZHT, Z0HT, DELTA, PRESS, QC,TREEH,TOTLAI, GCANOP,EVAPSTORE,HTOT)
+SUBROUTINE TVPDCANOPCALC (QN,QE,RADINTERC,ETMM,TAIRCAN,TAIRABOVE,VPDABOVE,TAIRNEW,VPDNEW,   &
+                            RHNEW,WIND,ZPD,ZHT,Z0HT,DELTA,PRESS,QC,TREEH,TOTLAI,GCANOP,     &
+                            EVAPSTORE,HTOT,EVMM) ! glm canopy evap
 
 ! calculation of air temperature and VPD within the canopy,
 ! applied as Tair et VPDair after
@@ -2444,6 +2484,8 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       REAL QN, QE, RADINTERC, TAIR, VPD, TAIRNEW, VPDNEW, ETMM, RHNEW, TAIRABOVE, VPDABOVE,QC
       REAL RNETTOT, ETOT, LHV, GCANOP, WIND, ZHT, ZPD, Z0HT, DELTA,ZPD2,Z0HT2, ZHT2
       REAL VPAIR, VPAIRCANOP, PRESS, CMOLAR, GAMMA,TREEH,TAIRCAN, GBCANMS1, GBCANMS2
+      REAL EVMM !glm canopy evap   
+
       
       REAL Cd, X, TOTLAI, Z0, KH, ALPHA
       REAL COAT, USTAR, Z0H, EVAPSTORE,HTOT
@@ -2458,11 +2500,9 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
 
       ! Latent heat of water vapour at air temperature (J mol-1)
       LHV = HEATEVAP(TAIRCAN) * H2OMW
-    
+     
       ! total latent heat flux in the system en W m-2  (QE J m-2 s-1, ETMM en kg m-2 t-1, EVAPSTORE mm t-1)
-      !ETOT = -QE + (ETMM + EVAPSTORE) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV 
-      ETOT = QE + (ETMM + EVAPSTORE) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV  ! glm change direction
-     ! print*,'ETOT',ETOT,QE,ETMM,EVAPSTORE
+      ETOT = QE + (ETMM + EVMM) / (SPERHR * 1E-06 * 18 * 1E-03) * 1e-06 * LHV !glm canopy evap 
       
       ! Convert from m s-1 to mol m-2 s-1
       CMOLAR = PRESS / (RCONST * TK(TAIRABOVE))
@@ -2476,10 +2516,8 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       
       ! calculation of air temperature within the canopy (Note that Qc <0)
       !HTOT=RNETTOT - ETOT + QC !W m-2
-      HTOT=RNETTOT - ETOT - QC !W m-2 glm better keep QC positive when downward (outgoing)
+      HTOT = RNETTOT - ETOT - QC !W m-2 glm better keep QC positive when downward (outgoing)
       TAIRNEW = TAIRABOVE +  (HTOT / (CPAIR * AIRMA * GCANOP))
-      
-     ! print*,'TAIRNEW',TAIRNEW, HTOT, RNETTOT, ETOT, QC
 
       ! air vapor pressure
       VPAIR = SATUR(TAIRABOVE) - VPDABOVE
@@ -2490,17 +2528,19 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
       ! calculation of air vapor pressure within the canopy
       VPAIRCANOP = VPAIR + (ETOT / (CPAIR * AIRMA * GCANOP/GAMMA))
 
-      VPDNEW = SATUR(TAIRNEW) - VPAIRCANOP
+      
       
       !VPDNEW=VPDABOVE !test
       ! limit condition      glm: without these, unresolved problems occurs at the beginning and end of day
       IF ((TAIRNEW-TAIRABOVE).GT.10)  TAIRNEW = TAIRABOVE + 10
       IF ((TAIRABOVE-TAIRNEW).GT.10)  TAIRNEW = TAIRABOVE - 10
 
+      VPDNEW = max(10.,SATUR(TAIRNEW) - VPAIRCANOP) ! RV 04/2017
+      ! IF (VPDNEW.GT.SATUR(TAIRNEW)) VPDNEW=SATUR(TAIRNEW) -1
       ! Avoid very low VPD or over-saturation.
-      IF (VPDNEW.LT.1) VPDNEW = 1
-      IF (VPDNEW.GT.SATUR(TAIRNEW)) VPDNEW=SATUR(TAIRNEW) -1
-      !print*, 'VPDNEW',VPDNEW,VPDABOVE, TAIRNEW, TAIRABOVE
+      IF ((VPDNEW-VPDABOVE).GT.1500) VPDNEW = VPDABOVE+1500
+      IF ((VPDABOVE-VPDNEW).GT.1500) VPDNEW = max(10.,VPDABOVE-1500)
+      
       
       ! Updated relative humidity
       RHNEW = 1.0 - VPDNEW/SATUR(TAIRNEW) 
@@ -2514,7 +2554,8 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
     SUBROUTINE  ZEROHRFLUX(APAR,ANIR,ATHR,ALEAF,RD,GSC,GBH,ET,ETDEFICIT,HFX,TLEAF,FSOIL, PSIL,CI,        &
                     AREA,IHOUR,ILAY,ITAR,NOTARGETS,NUMPNT,NSUMMED,TOTTMP,&
                     PPAR,PPS,PTRANSP,THRAB,FCO2,FRESPF,GSCAN,GBHCAN,FH2O,ETCANDEFICIT,FHEAT,TCAN,FSOIL1,  &
-                    PSILCAN,PSILCANMIN,CICAN, ECANMAX, ACANMAX,AREATOT)
+                    PSILCAN,PSILCANMIN,CICAN, ECANMAX, ACANMAX,AREATOT, &
+                    EV,FH2OEV)!glm canopy evap 
 
     ! set to 0 the value of Hrflux
 !**********************************************************************
@@ -2534,6 +2575,7 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
     REAL PTRANSP(MAXT,MAXLAY,MAXHRS)
     REAL APAR,AREA,ALEAF,ET,ANIR,ATHR,RD,GSC,HFX,TLEAF,FSOIL1,FSOIL,TOTTMP
     REAL PSIL,CI,GBH, AREATOT
+    REAL EV,FH2OEV(MAXT,MAXHRS)!glm canopy evap 
 
     AREATOT = 0.
     
@@ -2553,6 +2595,7 @@ SUBROUTINE TVPDCANOPCALC (QN, QE, RADINTERC, ETMM, TAIRCAN,TAIRABOVE, VPDABOVE, 
         FCO2(ITAR,IHOUR) = 0.
         FRESPF(ITAR,IHOUR) = 0.
         FH2O(ITAR,IHOUR) = 0.
+        FH2OEV(ITAR,IHOUR) = 0. !glm canopy evap 
         GSCAN(ITAR,IHOUR) = 0.
         GBHCAN(ITAR,IHOUR) = 0.
         FHEAT(ITAR,IHOUR) = 0.
